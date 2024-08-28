@@ -1,0 +1,56 @@
+-- Found Git: C:/Espressif/tools/idf-git/2.34.2/cmd/git.exe (found version "2.34.1.windows.1") 
+-- Component directory C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal/10Inch does not contain a CMakeLists.txt file. No component will be added
+-- Component directory C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal/V1_8 does not contain a CMakeLists.txt file. No component will be added
+-- Component directory C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal/10Inch does not contain a CMakeLists.txt file. No component will be added
+-- Component directory C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal/V1_8 does not contain a CMakeLists.txt file. No component will be added
+-- Component directory C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal/10Inch does not contain a CMakeLists.txt file. No component will be added
+-- Component directory C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal/V1_8 does not contain a CMakeLists.txt file. No component will be added
+-- ccache will be used for faster recompilation
+-- The C compiler identification is GNU 11.2.0
+-- The CXX compiler identification is GNU 11.2.0
+-- The ASM compiler identification is GNU
+-- Found assembler: C:/Espressif/tools/xtensa-esp32-elf/esp-2022r1-11.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc.exe
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Espressif/tools/xtensa-esp32-elf/esp-2022r1-11.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Espressif/tools/xtensa-esp32-elf/esp-2022r1-11.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-g++.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Project is not inside a git repository, or git repository has no commits; will not use 'git describe' to determine PROJECT_VER.
+-- Building ESP-IDF components for target esp32
+Processing 2 dependencies:
+[1/2] espressif/esp_secure_cert_mgr (2.4.1)
+[2/2] idf (5.0.1)
+-- Project sdkconfig file C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/sdkconfig
+Loading defaults file C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/sdkconfig.defaults...
+C:\Users\35192\AppData\Local\Temp\confgen_tmpti9whz81:5 line was updated to CONFIG_NEWLIB_NANO_FORMAT=n
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Check size of time_t
+-- Check size of time_t - done
+-- Found Python3: C:/Espressif/python_env/idf5.0_py3.8_env/Scripts/python.exe (found version "3.8.7") found components: Interpreter 
+-- Performing Test C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS
+-- Performing Test C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS - Success
+-- App "tls_mutual_auth" version: 1
+-- Adding linker script C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/esp-idf/esp_system/ld/memory.ld
+-- Adding linker script C:/esp/esp-idf-v5.0.1/components/esp_system/ld/esp32/sections.ld.in
+-- Adding linker script C:/esp/esp-idf-v5.0.1/components/esp_rom/esp32/ld/esp32.rom.ld
+-- Adding linker script C:/esp/esp-idf-v5.0.1/components/esp_rom/esp32/ld/esp32.rom.api.ld
+-- Adding linker script C:/esp/esp-idf-v5.0.1/components/esp_rom/esp32/ld/esp32.rom.libgcc.ld
+-- Adding linker script C:/esp/esp-idf-v5.0.1/components/esp_rom/esp32/ld/esp32.rom.newlib-data.ld
+-- Adding linker script C:/esp/esp-idf-v5.0.1/components/esp_rom/esp32/ld/esp32.rom.syscalls.ld
+-- Adding linker script C:/esp/esp-idf-v5.0.1/components/esp_rom/esp32/ld/esp32.rom.newlib-funcs.ld
+-- Adding linker script C:/esp/esp-idf-v5.0.1/components/soc/esp32/ld/esp32.peripherals.ld
+-- Components: app_trace app_update backoffAlgorithm bootloader bootloader_support bt cmock console coreMQTT cxx driver efuse esp-tls esp_adc esp_app_format esp_common esp_eth esp_event esp_gdbstub esp_hid esp_http_client esp_http_server esp_https_ota esp_https_server esp_hw_support esp_lcd esp_local_ctrl esp_netif esp_partition esp_phy esp_pm esp_psram esp_ringbuf esp_rom esp_system esp_timer esp_wifi espcoredump espressif__esp_secure_cert_mgr esptool_py fatfs freertos hal heap http_parser idf_test ieee802154 json log lwip main mbedtls mqtt newlib nvs_flash openthread partition_table perfmon posix_compat protobuf-c protocol_examples_common protocomm pthread sdmmc soc spi_flash spiffs tcp_transport ulp unity usb vfs wear_levelling wifi_provisioning wpa_supplicant xtensa
+-- Component paths: C:/esp/esp-idf-v5.0.1/components/app_trace C:/esp/esp-idf-v5.0.1/components/app_update C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/libraries/backoffAlgorithm C:/esp/esp-idf-v5.0.1/components/bootloader C:/esp/esp-idf-v5.0.1/components/bootloader_support C:/esp/esp-idf-v5.0.1/components/bt C:/esp/esp-idf-v5.0.1/components/cmock C:/esp/esp-idf-v5.0.1/components/console C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/libraries/coreMQTT C:/esp/esp-idf-v5.0.1/components/cxx C:/esp/esp-idf-v5.0.1/components/driver C:/esp/esp-idf-v5.0.1/components/efuse C:/esp/esp-idf-v5.0.1/components/esp-tls C:/esp/esp-idf-v5.0.1/components/esp_adc C:/esp/esp-idf-v5.0.1/components/esp_app_format C:/esp/esp-idf-v5.0.1/components/esp_common C:/esp/esp-idf-v5.0.1/components/esp_eth C:/esp/esp-idf-v5.0.1/components/esp_event C:/esp/esp-idf-v5.0.1/components/esp_gdbstub C:/esp/esp-idf-v5.0.1/components/esp_hid C:/esp/esp-idf-v5.0.1/components/esp_http_client C:/esp/esp-idf-v5.0.1/components/esp_http_server C:/esp/esp-idf-v5.0.1/components/esp_https_ota C:/esp/esp-idf-v5.0.1/components/esp_https_server C:/esp/esp-idf-v5.0.1/components/esp_hw_support C:/esp/esp-idf-v5.0.1/components/esp_lcd C:/esp/esp-idf-v5.0.1/components/esp_local_ctrl C:/esp/esp-idf-v5.0.1/components/esp_netif C:/esp/esp-idf-v5.0.1/components/esp_partition C:/esp/esp-idf-v5.0.1/components/esp_phy C:/esp/esp-idf-v5.0.1/components/esp_pm C:/esp/esp-idf-v5.0.1/components/esp_psram C:/esp/esp-idf-v5.0.1/components/esp_ringbuf C:/esp/esp-idf-v5.0.1/components/esp_rom C:/esp/esp-idf-v5.0.1/components/esp_system C:/esp/esp-idf-v5.0.1/components/esp_timer C:/esp/esp-idf-v5.0.1/components/esp_wifi C:/esp/esp-idf-v5.0.1/components/espcoredump C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/managed_components/espressif__esp_secure_cert_mgr C:/esp/esp-idf-v5.0.1/components/esptool_py C:/esp/esp-idf-v5.0.1/components/fatfs C:/esp/esp-idf-v5.0.1/components/freertos C:/esp/esp-idf-v5.0.1/components/hal C:/esp/esp-idf-v5.0.1/components/heap C:/esp/esp-idf-v5.0.1/components/http_parser C:/esp/esp-idf-v5.0.1/components/idf_test C:/esp/esp-idf-v5.0.1/components/ieee802154 C:/esp/esp-idf-v5.0.1/components/json C:/esp/esp-idf-v5.0.1/components/log C:/esp/esp-idf-v5.0.1/components/lwip C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main C:/esp/esp-idf-v5.0.1/components/mbedtls C:/esp/esp-idf-v5.0.1/components/mqtt C:/esp/esp-idf-v5.0.1/components/newlib C:/esp/esp-idf-v5.0.1/components/nvs_flash C:/esp/esp-idf-v5.0.1/components/openthread C:/esp/esp-idf-v5.0.1/components/partition_table C:/esp/esp-idf-v5.0.1/components/perfmon C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/libraries/common/posix_compat C:/esp/esp-idf-v5.0.1/components/protobuf-c C:/esp/esp-idf-v5.0.1/examples/common_components/protocol_examples_common C:/esp/esp-idf-v5.0.1/components/protocomm C:/esp/esp-idf-v5.0.1/components/pthread C:/esp/esp-idf-v5.0.1/components/sdmmc C:/esp/esp-idf-v5.0.1/components/soc C:/esp/esp-idf-v5.0.1/components/spi_flash C:/esp/esp-idf-v5.0.1/components/spiffs C:/esp/esp-idf-v5.0.1/components/tcp_transport C:/esp/esp-idf-v5.0.1/components/ulp C:/esp/esp-idf-v5.0.1/components/unity C:/esp/esp-idf-v5.0.1/components/usb C:/esp/esp-idf-v5.0.1/components/vfs C:/esp/esp-idf-v5.0.1/components/wear_levelling C:/esp/esp-idf-v5.0.1/components/wifi_provisioning C:/esp/esp-idf-v5.0.1/components/wpa_supplicant C:/esp/esp-idf-v5.0.1/components/xtensa
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build

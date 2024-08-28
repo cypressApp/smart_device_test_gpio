@@ -1,0 +1,150 @@
+[1/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/mqtt_demo_mutual_auth.c.obj
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:1703:21: warning: 'processLoopWithTimeout' defined but not used [-Wunused-function]
+ 1703 | static MQTTStatus_t processLoopWithTimeout( MQTTContext_t * pMqttContext,
+      |                     ^~~~~~~~~~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:1655:12: warning: 'waitForPacketAck' defined but not used [-Wunused-function]
+ 1655 | static int waitForPacketAck( MQTTContext_t * pMqttContext,
+      |            ^~~~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:1526:12: warning: 'subscribePublishLoop' defined but not used [-Wunused-function]
+ 1526 | static int subscribePublishLoop( MQTTContext_t * pMqttContext )
+      |            ^~~~~~~~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:1474:12: warning: 'initializeMqtt' defined but not used [-Wunused-function]
+ 1474 | static int initializeMqtt( MQTTContext_t * pMqttContext,
+      |            ^~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:1418:12: warning: 'publishToTopic' defined but not used [-Wunused-function]
+ 1418 | static int publishToTopic( MQTTContext_t * pMqttContext )
+      |            ^~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:1375:12: warning: 'unsubscribeFromTopic' defined but not used [-Wunused-function]
+ 1375 | static int unsubscribeFromTopic( MQTTContext_t * pMqttContext )
+      |            ^~~~~~~~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:1333:12: warning: 'subscribeToTopic' defined but not used [-Wunused-function]
+ 1333 | static int subscribeToTopic( MQTTContext_t * pMqttContext )
+      |            ^~~~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:1311:12: warning: 'disconnectMqttSession' defined but not used [-Wunused-function]
+ 1311 | static int disconnectMqttSession( MQTTContext_t * pMqttContext )
+      |            ^~~~~~~~~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:1057:12: warning: 'handleResubscribe' defined but not used [-Wunused-function]
+ 1057 | static int handleResubscribe( MQTTContext_t * pMqttContext )
+      |            ^~~~~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:926:12: warning: 'handlePublishResend' defined but not used [-Wunused-function]
+  926 | static int handlePublishResend( MQTTContext_t * pMqttContext )
+      |            ^~~~~~~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:892:13: warning: 'cleanupOutgoingPublishes' defined but not used [-Wunused-function]
+  892 | static void cleanupOutgoingPublishes( void )
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/mqtt_demo_mutual_auth.c:702:12: warning: 'connectToServerWithBackoffRetries' defined but not used [-Wunused-function]
+  702 | static int connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext,
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[2/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/app_main.c.obj
+[3/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/account_handler.c.obj
+[4/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/udp_response_handler.c.obj
+[5/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/aws_iot_handler.c.obj
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/aws_iot_handler.c:763:12: warning: 'unsubscribeFromTopic' defined but not used [-Wunused-function]
+  763 | static int unsubscribeFromTopic( MQTTContext_t * pMqttContext )
+      |            ^~~~~~~~~~~~~~~~~~~~
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/aws_iot_handler.c:694:12: warning: 'disconnectMqttSession' defined but not used [-Wunused-function]
+  694 | static int disconnectMqttSession( MQTTContext_t * pMqttContext )
+      |            ^~~~~~~~~~~~~~~~~~~~~
+[6/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/AccessPointMode.c.obj
+[7/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/TcpServer.c.obj
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/TcpServer.c: In function 'tcp_server_task':
+C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/TcpServer.c:203:13: warning: variable 'err' set but not used [-Wunused-but-set-variable]
+  203 |         int err = bind(listen_sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+      |             ^~~
+[8/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/StationMode.c.obj
+[9/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/ota_lib/flash_boot_handler.c.obj
+[10/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/memory_handler/flash_reset_handler.c.obj
+[11/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/wifi_info_handler.c.obj
+[12/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/UdpServer.c.obj
+[13/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/memory_handler/flash_wifi_info_handler.c.obj
+[14/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/ota_lib/tcp_ota_handler.c.obj
+[15/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/GPIO.c.obj
+[16/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/checksum_handler.c.obj
+[17/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/ota_lib/ota_handler.c.obj
+[18/27] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/reset_handler.c.obj
+[19/27] Performing build step for 'bootloader'
+[1/1] cmd.exe /C "cd /D "C:\Users\35192\Desktop\Cypress\Terminal\Cypress Terminal Platform\e9_smart_device_test_gpio\build\bootloader\esp-idf\esptool_py" && C:\Espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:/esp/esp-idf-v5.0.1/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x1000 "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/bootloader/bootloader.bin""
+Bootloader binary size 0x6710 bytes. 0x8f0 bytes (8%) free.
+[20/25] Linking C static library esp-idf\main\libmain.a
+[21/25] Generating ld/sections.ld
+[22/25] Linking CXX executable tls_mutual_auth.elf
+[23/25] Generating binary image from built executable
+esptool.py v4.5.1
+Creating esp32 image...
+Merged 25 ELF sections
+Successfully created esp32 image.
+Generated C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/tls_mutual_auth.bin
+[24/25] cmd.exe /C "cd /D "C:\Users\35192\Desktop\Cypress\Terminal\Cypress Terminal Platform\e9_smart_device_test_gpio\build\esp-idf\esptool_py" && C:\Espressif\python_env\idf5.0_py3.8_env\Scripts\python.exe C:/esp/esp-idf-v5.0.1/components/partition_table/check_sizes.py --offset 0x8000 partition --type app "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/partition_table/partition-table.bin" "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/tls_mutual_auth.bin""
+tls_mutual_auth.bin binary size 0xd36d0 bytes. Smallest app partition is 0x100000 bytes. 0x2c930 bytes (17%) free.
+[24/25] cmd.exe /C "cd /D C:\esp\esp-idf-v5.0.1\components\esptool_py && C:\Espressif\tools\cmake\3.24.0\bin\cmake.exe -D IDF_PATH=C:/esp/esp-idf-v5.0.1 -D SERIAL_TOOL=C:/Espressif/python_env/idf5.0_py3.8_env/Scripts/python.exe;;C:/esp/esp-idf-v5.0.1/components/esptool_py/esptool/esptool.py;--chip;esp32 -D SERIAL_TOOL_ARGS=--before=default_reset;--after=hard_reset;write_flash;@flash_args -D "WORKING_DIRECTORY=C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build" -P C:/esp/esp-idf-v5.0.1/components/esptool_py/run_serial_tool.cmake"
+esptool esp32 -p COM3 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 bootloader/bootloader.bin 0x10000 tls_mutual_auth.bin 0x8000 partition_table/partition-table.bin 0xd000 ota_data_initial.bin
+esptool.py v4.5.1
+Serial port COM3
+Connecting....................
+Chip is ESP32-D0WDQ6 (revision v1.0)
+Features: WiFi, BT, Dual Core, 240MHz, VRef calibration in efuse, Coding Scheme None
+Crystal is 40MHz
+MAC: 94:b5:55:24:22:6c
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00001000 to 0x00007fff...
+Flash will be erased from 0x00010000 to 0x000e3fff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x0000d000 to 0x0000efff...
+Compressed 26384 bytes to 16453...
+Writing at 0x00001000... (50 %)
+Writing at 0x000076ad... (100 %)
+Wrote 26384 bytes (16453 compressed) at 0x00001000 in 0.9 seconds (effective 237.7 kbit/s)...
+Hash of data verified.
+Compressed 866000 bytes to 553385...
+Writing at 0x00010000... (2 %)
+Writing at 0x0001b0a1... (5 %)
+Writing at 0x00026537... (8 %)
+Writing at 0x0002ba40... (11 %)
+Writing at 0x00032e99... (14 %)
+Writing at 0x0003d33b... (17 %)
+Writing at 0x000431e2... (20 %)
+Writing at 0x00048c49... (23 %)
+Writing at 0x0004e58a... (26 %)
+Writing at 0x00053f3e... (29 %)
+Writing at 0x000597a3... (32 %)
+Writing at 0x0005f0c5... (35 %)
+Writing at 0x0006470b... (38 %)
+Writing at 0x0006a0b0... (41 %)
+Writing at 0x0006fb90... (44 %)
+Writing at 0x00075236... (47 %)
+Writing at 0x0007b830... (50 %)
+Writing at 0x000812f8... (52 %)
+Writing at 0x0008700a... (55 %)
+Writing at 0x0008c532... (58 %)
+Writing at 0x000916bb... (61 %)
+Writing at 0x00096b3b... (64 %)
+Writing at 0x0009bee2... (67 %)
+Writing at 0x000a1512... (70 %)
+Writing at 0x000a6d96... (73 %)
+Writing at 0x000ac814... (76 %)
+Writing at 0x000b1f3c... (79 %)
+Writing at 0x000b7ac5... (82 %)
+Writing at 0x000bd5b8... (85 %)
+Writing at 0x000c3e87... (88 %)
+Writing at 0x000ce027... (91 %)
+Writing at 0x000d416b... (94 %)
+Writing at 0x000d9b96... (97 %)
+Writing at 0x000df222... (100 %)
+Wrote 866000 bytes (553385 compressed) at 0x00010000 in 12.6 seconds (effective 548.3 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 259...
+Writing at 0x00008000... (100 %)
+Wrote 3072 bytes (259 compressed) at 0x00008000 in 0.1 seconds (effective 307.6 kbit/s)...
+Hash of data verified.
+Compressed 8192 bytes to 31...
+Writing at 0x0000d000... (100 %)
+Wrote 8192 bytes (31 compressed) at 0x0000d000 in 0.1 seconds (effective 454.5 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...

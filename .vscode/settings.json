@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "esp_secure_cert_read.h": "c",
+        "context.h": "c",
+        "wifi_info_handler.h": "c",
+        "constants.h": "c",
+        "string.h": "c",
+        "stdio.h": "c",
+        "aws_iot_handler.h": "c",
+        "stdbool.h": "c"
+    },
+    "idf.adapterTargetName": "esp32"
+}

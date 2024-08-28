@@ -1,0 +1,7 @@
+source "C:/esp/esp-idf-v5.0.1/components/bootloader/Kconfig.projbuild"
+source "C:/esp/esp-idf-v5.0.1/components/esp_app_format/Kconfig.projbuild"
+source "C:/esp/esp-idf-v5.0.1/components/esp_rom/Kconfig.projbuild"
+source "C:/esp/esp-idf-v5.0.1/components/esptool_py/Kconfig.projbuild"
+source "C:/esp/esp-idf-v5.0.1/components/partition_table/Kconfig.projbuild"
+source "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/Kconfig.projbuild"
+source "C:/esp/esp-idf-v5.0.1/examples/common_components/protocol_examples_common/Kconfig.projbuild"
