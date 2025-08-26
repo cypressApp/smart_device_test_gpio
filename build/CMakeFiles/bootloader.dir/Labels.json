@@ -2,34 +2,34 @@
 	"sources" : 
 	[
 		{
-			"file" : "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/CMakeFiles/bootloader"
+			"file" : "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build/CMakeFiles/bootloader"
 		},
 		{
-			"file" : "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/CMakeFiles/bootloader.rule"
+			"file" : "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build/CMakeFiles/bootloader.rule"
 		},
 		{
-			"file" : "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/CMakeFiles/bootloader-complete.rule"
+			"file" : "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build/CMakeFiles/bootloader-complete.rule"
 		},
 		{
-			"file" : "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
+			"file" : "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
 		},
 		{
-			"file" : "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
+			"file" : "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
 		},
 		{
-			"file" : "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
+			"file" : "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
 		},
 		{
-			"file" : "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
+			"file" : "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
 		},
 		{
-			"file" : "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
+			"file" : "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
 		},
 		{
-			"file" : "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
+			"file" : "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
 		},
 		{
-			"file" : "C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
+			"file" : "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
 		}
 	],
 	"target" : 

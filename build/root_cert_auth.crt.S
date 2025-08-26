@@ -1,8 +1,10 @@
-/* * Data converted from C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/certs/root_cert_auth.crt
+/* * Data converted from C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/main/certs/root_cert_auth.crt
  * (null byte appended)
  */
 .data
+#if !defined (__APPLE__) && !defined (__linux__)
 .section .rodata.embedded
+#endif
 
 .global root_cert_auth_crt
 root_cert_auth_crt:
@@ -92,4 +94,8 @@ _binary_root_cert_auth_crt_end: /* for objcopy compatibility */
 
 .global root_cert_auth_crt_length
 root_cert_auth_crt_length: /* not including null byte */
-.word 1206
+.long 1206
+
+#if defined (__linux__)
+.section .note.GNU-stack,"",@progbits
+#endif

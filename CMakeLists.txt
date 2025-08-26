@@ -3,10 +3,12 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(EXTRA_COMPONENT_DIRS "$ENV{IDF_PATH}/examples/common_components/protocol_examples_common"
-						 "${CMAKE_CURRENT_LIST_DIR}/../../libraries/backoffAlgorithm"
-						 "${CMAKE_CURRENT_LIST_DIR}/../../libraries/coreMQTT"
-						 "${CMAKE_CURRENT_LIST_DIR}/../../libraries/common/posix_compat"
+						 "${CMAKE_CURRENT_LIST_DIR}/libraries/backoffAlgorithm"
+						 "${CMAKE_CURRENT_LIST_DIR}/libraries/coreMQTT"
+						 "${CMAKE_CURRENT_LIST_DIR}/libraries/common/posix_compat"
 	)
+
+set(PARTITION_TABLE_CSV "partitions.csv")
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(tls_mutual_auth)

@@ -1,0 +1,33 @@
+# Build folder
+/build/
+
+# SDK configuration backups
+/sdkconfig.old
+
+# VSCode settings
+/.vscode/
+
+# Clangd cache
+/.clangd
+
+# Partition table CSV (optional: track if you want version control)
+/partitions.csv
+
+# Dependencies lock file (optional: track if you want version control)
+/dependencies.lock
+
+# Binary artifacts (ESP-IDF generates .bin, .elf, .map, etc.)
+*.bin
+*.elf
+*.map
+*.hex
+*.img
+
+# Temporary files
+*.log
+*.tmp
+*.bak
+
+# Python cache (if you use Python scripts)
+__pycache__/
+*.pyc

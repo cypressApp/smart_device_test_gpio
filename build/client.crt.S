@@ -1,8 +1,10 @@
-/* * Data converted from C:/Users/35192/Desktop/Cypress/Terminal/Cypress Terminal Platform/e9_smart_device_test_gpio/main/certs/client.crt
+/* * Data converted from C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/main/certs/client.crt
  * (null byte appended)
  */
 .data
+#if !defined (__APPLE__) && !defined (__linux__)
 .section .rodata.embedded
+#endif
 
 .global client_crt
 client_crt:
@@ -18,4 +20,8 @@ _binary_client_crt_end: /* for objcopy compatibility */
 
 .global client_crt_length
 client_crt_length: /* not including null byte */
-.word 22
+.long 22
+
+#if defined (__linux__)
+.section .note.GNU-stack,"",@progbits
+#endif

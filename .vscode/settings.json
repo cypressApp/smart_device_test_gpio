@@ -1,13 +1,28 @@
 {
-    "files.associations": {
-        "esp_secure_cert_read.h": "c",
-        "context.h": "c",
-        "wifi_info_handler.h": "c",
-        "constants.h": "c",
-        "string.h": "c",
-        "stdio.h": "c",
-        "aws_iot_handler.h": "c",
-        "stdbool.h": "c"
-    },
-    "idf.adapterTargetName": "esp32"
+  "files.associations": {
+    "esp_secure_cert_read.h": "c",
+    "context.h": "c",
+    "wifi_info_handler.h": "c",
+    "constants.h": "c",
+    "string.h": "c",
+    "stdio.h": "c",
+    "aws_iot_handler.h": "c",
+    "stdbool.h": "c"
+  },
+  "idf.adapterTargetName": "esp32",
+  "idf.flashType": "UART",
+  "idf.portWin": "COM12",
+  "idf.openOcdConfigs": [
+    "interface/ftdi/esp_ftdi.cfg",
+    "target/esp32s3.cfg"
+  ],
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32s3"
+  },
+  "clangd.path": "C:\\Users\\Majid\\.espressif\\tools\\esp-clang\\esp-18.1.2_20240912\\esp-clang\\bin\\clangd.exe",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=C:\\Users\\Majid\\.espressif\\tools\\xtensa-esp-elf\\esp-14.2.0_20241119\\xtensa-esp-elf\\bin\\xtensa-esp32s3-elf-gcc.exe",
+    "--compile-commands-dir=c:\\Users\\Majid\\Desktop\\Cypress\\firmware\\smart_device_test_gpio\\build"
+  ]
 }
