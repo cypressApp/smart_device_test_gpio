@@ -7,8 +7,8 @@
 #define AWS_IOT_TASK_STACK_DEPTH             20480
 #define CHECK_TCP_TIMEOUT_TASK_STACK_DEPTH   4096
 
-#define HARDWARE_VERSION "01.20"
-#define FIRMWARE_VERSION "01.20"
+#define HARDWARE_VERSION "1.2"
+#define FIRMWARE_VERSION "1.2"
 
 #define IS_REMOTE_CON_ENABLE 1
 
@@ -17,29 +17,77 @@
 #define ESP_AP_WIFI_SSID        "Cypress_WiFi_15753C"
 #define ESP_AP_WIFI_PASS        "123456789"  
 
+
 #define SET_ROUTER_SSID_PREFIX "ssid:"
-#define SET_ROUTER_SSID_SUFFIX "ends"
+#define SET_ROUTER_SSID_SUFFIX "\n"
 #define SET_ROUTER_PASS_PREFIX "pass:"
-#define SET_ROUTER_PASS_SUFFIX "endp"
+#define SET_ROUTER_PASS_SUFFIX "\n"
 
 #define TCP_PORT    1234
 #define UDP_PORT    1234
 
-#define SCAN_COMMAND     "GET_INFO\r\n"
+#define SCAN_COMMAND     "GET_INFO"
 #define SCAN_COMMAND_LEN (sizeof(SCAN_COMMAND) - 3)
 
 #define AWS_SCAN_RESPONSE     "ACK"
 #define AWS_SCAN_RESPONSE_LEN (sizeof(AWS_SCAN_RESPONSE) - 1)
 
-#define DEVICE_NAME   "device_name"    // Device name
-#define DEVICE_TYPE   "dev_type"       // Must be lowercase: Device type in phone app
-#define TERMINAL_NAME "terminal_name"  // Must be lowercase: Terminal name in phone app 
-#define MAJOR_ID      ""               // Unique ID in phone app
+#define DEVICE_NAME   "dev121"    // Device name
+#define DEVICE_TYPE   "devtype121"       // Must be lowercase: Device type in phone app
+#define TERMINAL_NAME "terminal12"  // Must be lowercase: Terminal name in phone app 
+#define MAJOR_ID      "bJCcsgtSPxJIx8XOT7kMM4"               // Unique ID in phone app
 #define MINOR_ID      "12345"          // Each define should have a unique minorId
 
-#define AWS_IOT_CERTIFICATE ""
+#define CERTIFICATE_ID "61f8e6bbb4bc7d87bf1d372ac5f887d9ca9032ae9b73f50d61f9b3c7fba00639"
 
-#define AWS_IOT_PRIVATE_KEY ""
+#define AWS_IOT_CERTIFICATE "-----BEGIN CERTIFICATE-----\n\
+MIIDWTCCAkGgAwIBAgIUQu3cWJhYsnPitzNXdcTYFIMrU5AwDQYJKoZIhvcNAQEL\n\
+BQAwTTFLMEkGA1UECwxCQW1hem9uIFdlYiBTZXJ2aWNlcyBPPUFtYXpvbi5jb20g\n\
+SW5jLiBMPVNlYXR0bGUgU1Q9V2FzaGluZ3RvbiBDPVVTMB4XDTI1MTAxODIxMjYy\n\
+NVoXDTQ5MTIzMTIzNTk1OVowHjEcMBoGA1UEAwwTQVdTIElvVCBDZXJ0aWZpY2F0\n\
+ZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMKpapHgGa6yeIqgwX3M\n\
+ByB+mTM6Re0hNZKLl0UfdS/qEeDJ3EamNzCARYENnHs7BbRxQuz+Otd9hkx5XltA\n\
+H9Q/+q69fSBMPc3h/b9hS8pqKGYXRrH7VNrbAYyasIKdNiKW/MV//8khpUFR8v2a\n\
+7xb9/E7Z+HwuufoTXatUpqpMcyiCuZDgI80stLaU1Qb59RrfJLDW+aoQmKOwgV1r\n\
+Ke/ybIZrMw7KmiD1JnCVFrLsQa1HiP4C6XvBAK3YdYUZ75tzqGSbygWl7K4aCgYS\n\
+dDheEAHVvFoEoprrZmsT6fhwGfv6OjUHOrCoYyQJGDySmZSQQalov+GrbrueNxOG\n\
+3qECAwEAAaNgMF4wHwYDVR0jBBgwFoAUz2SA/bHCAqaOuvX1AiwYh2u6YQMwHQYD\n\
+VR0OBBYEFHW6TPffvmKAOFaqPeAHtZeq+uCGMAwGA1UdEwEB/wQCMAAwDgYDVR0P\n\
+AQH/BAQDAgeAMA0GCSqGSIb3DQEBCwUAA4IBAQA+TdoY/B/5VQavjsPGGLTXgUBF\n\
+pUgv+ZW6XNF0VJrCWKrIF2s/W1ilkwlrhiN8CqQfwjKCJ2ahTcvKfbeCvRM1L77k\n\
+4bjDwGkRklqyh9KqZBX2PwxMFuvmB6Sboe2VoDVdjZ7MxWBthSdqoNidGjyxZcLZ\n\
+LUhPrLK/tPCxpohbezPGq7bOcUr5fF8qlVBi/9dNOqIrRM13Hj81HCcVcO2rfTaM\n\
+mX4fDZC1U1p6q0awOqMWGle3RoSsiZw6JjRNmV+38C+3o4y8/YsXz93K1jrsj9zF\n\
+jiw2XCkcFK7WS+mVj9YOhDDX0Ngah8Ert1VVUeSFT6fiREueBptoViCZ7P5O\n\
+-----END CERTIFICATE-----"
+
+#define AWS_IOT_PRIVATE_KEY "-----BEGIN RSA PRIVATE KEY-----\n\
+MIIEpQIBAAKCAQEAwqlqkeAZrrJ4iqDBfcwHIH6ZMzpF7SE1kouXRR91L+oR4Mnc\n\
+RqY3MIBFgQ2cezsFtHFC7P46132GTHleW0Af1D/6rr19IEw9zeH9v2FLymooZhdG\n\
+sftU2tsBjJqwgp02Ipb8xX//ySGlQVHy/ZrvFv38Ttn4fC65+hNdq1SmqkxzKIK5\n\
+kOAjzSy0tpTVBvn1Gt8ksNb5qhCYo7CBXWsp7/JshmszDsqaIPUmcJUWsuxBrUeI\n\
+/gLpe8EArdh1hRnvm3OoZJvKBaXsrhoKBhJ0OF4QAdW8WgSimutmaxPp+HAZ+/o6\n\
+NQc6sKhjJAkYPJKZlJBBqWi/4atuu543E4beoQIDAQABAoIBAQCQdJyrKDym0bZ2\n\
+WZl9Ov1G9evGgkYGFRDmcUSOfSu/pNojkGkw3IQ0L9xkSq+HG2O+ZhaePIN6CqKw\n\
++Zg16z4zik8DgYbrguiSclSVwyQ1T9Yu/LLvvW1ZBBEAQIMgSn4z6QwnnDc7EQbL\n\
+lH7YCDPJQi4MbeDiduJ4XAq07BrKYKeIFa/NQgc+5iwsX6BG5oaOifEeTVYAk3/6\n\
+nAmtlBC4jOi0GtsYqBMnmAF9GNbRrBaK2h+TnhA2l8TBwU7Ry0ISyQa5QmV0JGsb\n\
+SBJ228J9m1wGdhPDkuf6GmWs7XHiXRc/yBB7vxDKSXPZBwikK4AQ//nikcdgwnsk\n\
+ZdLZSv2JAoGBAPwOu42TMGw9czc2QIwm/wZoos6RolqKSbPFXjBwjOhQD+7FMNDp\n\
+59IZIXMCUgrWwJp39DycEspxQayXntFxxdkMnHO9IF3IvCov7w5iZq+ZuvxpdEyK\n\
+Oy/uRxwYR6J2SBnIdY/UA33xHvnQZAeQFfmSFAVcTcEljCyQMyhKNhmLAoGBAMW0\n\
+3Up8B3j6+6PfHvV47oM+7JILNhKiMhVQ4gmfrlqn7gXcaaVi81TvFLlqRSxgjO1c\n\
+ABX6K07y354RHnHv7HcrbuEt5I7vIsKcN9FFdUqDYb59rppduioJ/6kgzpSiffCS\n\
+3CNaT5X/2/Uu/ldOx59daX3ipuhG0EqWShmKK/YDAoGBAM4FQLl8SEUAiS7ksiec\n\
+LDDRz9jl4nz8sTc2KEGRjSrJXex80uS/exMYJWX6zJI9a9oWF9R+gUFlBxgKKe7p\n\
+fpxlGW/kcxMU4u/clBn+xg3bqqFrlHqHNc98hDTrh4m8AjzIw4aW9W+4aOgps8kW\n\
+tU9zXdfv1UH87bDzAE17MvL3AoGBALPY+KkGNMIABqOml4IT1Vy9A/VCj5jZxReQ\n\
+8V5xzOiY9LSOMeiKH/K2XjLhEjXxSqGtXEKhxX3XAEbJKdnZuFEbyIy887p2nTdN\n\
+ZpVPSwhShbsEl63C71PIrrJKrsGVI12SKwFZ6SX5jzz119bSSlOVZR5n7Q9FQ7tm\n\
+Bdg/0gfDAoGAHM9Mf0zg4JcD3Pe6+BSOof2/9Q4dwecY/S573j8LVRQvPnYqFLol\n\
+9bb6EjU795A1xjLv945HtXhcjhJO+tpdgsKuSWXCoBUJuXYjW6yHshI1M4bCVhgl\n\
+jGXtkK137LmmSt7gSHOvQvIhxlCuueoP3B9NpySG4JjxJ+4mk1CvVG0=\n\
+-----END RSA PRIVATE KEY-----"
 
 // Do not change root ca
 #define AWS_IOT_ROOT_CA "-----BEGIN CERTIFICATE-----\n\

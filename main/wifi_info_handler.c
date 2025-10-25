@@ -1,25 +1,15 @@
 #include "context.h"
 
-esp_netif_t * p_netif;
 uint8_t device_mac_address[10] = {0};
 
-uint32_t get_device_ip_info_int(){
+uint32_t get_device_ip_info_int(esp_netif_t *p_netif){
     
-    // esp_netif_t * p_netif = esp_netif_create_default_wifi_ap();
     esp_netif_ip_info_t if_info;
     ESP_ERROR_CHECK(esp_netif_get_ip_info(p_netif, &if_info));
 
     return if_info.ip.addr;
 }
 
-uint32_t get_gateway_ip_info_int(){
-
-    esp_netif_ip_info_t if_info;
-    ESP_ERROR_CHECK(esp_netif_get_ip_info(p_netif, &if_info));
-
-    return if_info.gw.addr;
-
-}
 
 void get_gateway_ip_info_array(int *array , uint32_t gateway_ip){
 

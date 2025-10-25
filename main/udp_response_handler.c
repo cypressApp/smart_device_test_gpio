@@ -15,6 +15,7 @@ void pairing_time_out_handler(void *pvParameters){
 			printf("TIME_OUT\r\n");
 #endif			
 		}
+		break;
 		vTaskDelay(30 / portTICK_PERIOD_MS);
 	}
 	pairing_time_out_counter = 0;
@@ -65,10 +66,14 @@ void get_device_wifi_info(char *device_wifi_info){
 	// 	tempIpSlice = (tempIpSlice >> 8);
 	// }
 
+	/*
 	sprintf(device_wifi_info , "%d.%d.%d.%d,%02X%02X%02X%02X%02X%02X" , \
 					            ip1 , ip2 , ip3 , ip4 , \
 					            mac_str[0], mac_str[1], mac_str[2], mac_str[3], mac_str[4], mac_str[5]);
-    
+	*/
+
+	sprintf(device_wifi_info , "%d.%d.%d.%d" , ip1 , ip2 , ip3 , ip4);
+
 }
 
 void udp_get_info_response(int sock , int ip4 , int account_index , char *rx_buffer){
@@ -80,10 +85,11 @@ void udp_get_info_response(int sock , int ip4 , int account_index , char *rx_buf
 #endif
 	response_required = true;
 	
-	send_data_len = sprintf(send_data , "%s,%s,%s,%s,%s,%s,%s" , device_wifi_info , DEVICE_UNIQUE_ID_STR , DEVICE_NAME , DEVICE_TYPE, MINOR_ID , FIRMWARE_VERSION , HARDWARE_VERSION);
+	send_data_len = sprintf(send_data , "%s,%s,%s,%s,%s,%s,%s,%s" , device_wifi_info, TERMINAL_NAME , 
+		DEVICE_NAME , DEVICE_TYPE, MINOR_ID, CERTIFICATE_ID , FIRMWARE_VERSION , HARDWARE_VERSION);
 
-	strcat(send_data , "\r\n");
-	send_data_len += 2;
+	// strcat(send_data , "\r\n");
+	// send_data_len += 2;
 
 #ifdef UDP_DB 
 	printf(send_data);

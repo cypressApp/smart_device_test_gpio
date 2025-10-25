@@ -14,9 +14,71 @@ void process_tcp_data(char* rx_buffer , int rx_buffer_len , int sock){
     printf("%s\n" , rx_buffer);
 #endif
 
-    if(ota_command_handler(rx_buffer , rx_buffer_len , sock)){
+    // if(ota_command_handler(rx_buffer , rx_buffer_len , sock)){
+    //     xTaskCreate(&ota_task, "ota_task", 8192, NULL, 5, NULL);
+    //     return;
+    // }
+    if(memcmp(rx_buffer , "https" , 5) == 0){
+        memcpy(firmwareUrl , rx_buffer , rx_buffer_len);
+        firmwareUrl[rx_buffer_len] = 0;
+        xTaskCreate(&ota_task, "ota_task", 8192, NULL, 5, NULL);
+        send_data_len = sprintf(send_data , "%s\n" , PAIR_ACK_RESPONSE);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        send(sock, send_data, send_data_len, 0);
         return;
     }
+    else if(memcmp(rx_buffer , START_PAIRING , strlen(START_PAIRING)) == 0){
+		if(pairing_step == START_PAIRING_IND){
+			pairing_step++;
+			response_required = true;	
+			send_data_len = sprintf(send_data , "%s\n" , PAIR_ACK_RESPONSE);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            send(sock, send_data, send_data_len, 0);
+		//	xTaskCreate(pairing_time_out_handler, "pairing_time_out_handler", 1024, NULL, 5, NULL);
+		}
+
+	} else if(is_pairing_command_valid(rx_buffer , SET_ROUTER_SSID_PREFIX , SET_ROUTER_SSID_SUFFIX) ){
+	
+		if(pairing_step == SET_ROUTER_SSID_IND){
+			temp_ssid_len = strlen(rx_buffer) - strlen(SET_ROUTER_SSID_PREFIX) - strlen(SET_ROUTER_SSID_SUFFIX);
+			memcpy(temp_ssid , (rx_buffer + strlen(SET_ROUTER_SSID_PREFIX)) , temp_ssid_len);
+			temp_ssid[temp_ssid_len] = 0;
+			temp_ssid_len += 1;
+			pairing_step++;
+			response_required = true;
+			send_data_len = sprintf(send_data , "%s\n" , PAIR_ACK_RESPONSE);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            send(sock, send_data, send_data_len, 0);
+		}
+	
+	} else if(is_pairing_command_valid(rx_buffer , SET_ROUTER_PASS_PREFIX , SET_ROUTER_PASS_SUFFIX)){
+		
+		if(pairing_step == SET_ROUTER_PASS_IND){
+			temp_password_len = strlen(rx_buffer) - strlen(SET_ROUTER_PASS_PREFIX) - strlen(SET_ROUTER_PASS_SUFFIX);
+			memcpy(temp_password , (rx_buffer + strlen(SET_ROUTER_PASS_PREFIX)) , temp_password_len);
+			temp_password[temp_password_len] = 0;
+			temp_password_len += 1;
+			pairing_step++;
+			response_required = true;
+			send_data_len = sprintf(send_data , "%s\n" , PAIR_ACK_RESPONSE);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            send(sock, send_data, send_data_len, 0);
+		}
+
+	} else if(memcmp(rx_buffer , FINISH_PAIRING , strlen(FINISH_PAIRING)) == 0){
+		
+		if(pairing_step == FINISH_PAIRING_IND){
+			flash_store_wifi_router_info(temp_ssid , temp_password , WIFI_STA_MODE , temp_ssid_len , temp_password_len);
+			pairing_step = START_PAIRING_IND;
+			response_required = true;
+			send_data_len = sprintf(send_data , "%s\n" , PAIR_ACK_RESPONSE);
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            send(sock, send_data, send_data_len, 0);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+			xTaskCreate(pairing_esp_restart, "pairing_esp_restart", 1024, NULL, 5, NULL);  
+		}
+		
+	}	
     
     char *temp_response = (char *) calloc(256 , sizeof(char)); 
     bool is_data_valid = true;
@@ -31,8 +93,10 @@ void process_tcp_data(char* rx_buffer , int rx_buffer_len , int sock){
     //     is_data_valid = false;
     // }
 
+    int len = sprintf(temp_response , "Hi I'm ESP32 Smart Device: Local\n");
+    printf("size: %d\n", len);
     if(is_data_valid){
-        send_data_to_clients(SEND_TO_ALL, temp_response, 3);
+        send_data_to_clients(SEND_TO_ALL, temp_response, len);
     }
     
     free(temp_response);
@@ -165,6 +229,20 @@ void receiving_tcp_data(void *pvParameters){
         
 }
 
+void test_tcp_send_data(void *pvParameters){
+
+    int sock = (int)pvParameters;
+    char *data = "Hello from ESP32\n";
+    int data_size = strlen(data);
+
+    while (1)
+    {
+        send(sock, data, data_size, 0);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+    vTaskDelete(NULL);
+}
+
 void tcp_server_task(void *pvParameters)
 {
     char addr_str[128];
@@ -240,7 +318,8 @@ void tcp_server_task(void *pvParameters)
             if(temp_ip4 < 255){
                 add_account(sock , temp_ip4); 
                 xTaskCreate(receiving_tcp_data, "receiving_tcp_data", TCP_SERVER_TASK_STACK_DEPTH, (void *)&account_struct_list[account_list_size - 1] , 5, NULL);
-            }
+                // xTaskCreate(test_tcp_send_data, "test_tcp_send_data", 4096, (void *)sock , 5, NULL);
+        }
 
         }
         

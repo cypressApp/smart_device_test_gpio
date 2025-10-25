@@ -13,6 +13,10 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
+#include "esp_ota_ops.h"
+#include "esp_https_ota.h"
+#include "constants.h"
+
 int aws_iot_demo_main( int argc, char ** argv );
 
 EventGroupHandle_t s_wifi_event_group;
@@ -31,6 +35,8 @@ int  ip2 = 0;
 int  ip3 = 0; 
 int  ip4 = 0; 
 int  ip4_len = 0;
+
+esp_netif_t *p_netif_sta;
 
 void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
@@ -103,6 +109,7 @@ void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, voi
 #else
         update_wifi_ip_sta();  
         isConnectedToWifi = true;
+        esp_wifi_set_ps(WIFI_PS_NONE);
         if(!all_sockets_init){
             all_sockets_init = true;            
             xTaskCreate(tcp_server_task, "tcp_server", TCP_SERVER_TASK_STACK_DEPTH , (void*)AF_INET, 5, NULL);
@@ -119,7 +126,7 @@ void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, voi
 
 void update_wifi_ip_sta(){
 
-    int tempIpSlice = get_device_ip_info_int();
+    int tempIpSlice = get_device_ip_info_int(p_netif_sta);
     update_wifi_mode_ip(tempIpSlice);
 
     ip4_len = 0;
@@ -152,7 +159,7 @@ void update_wifi_mode_ip(int tempIpSlice){
     tempIpSlice = (tempIpSlice >> 8);
     ip4 = tempIpSlice & 0xFF;
     if(ip4 < 0){
-        ip4 += 255;
+        ip4 += 0xFF;
     }	
 	
 }
@@ -181,6 +188,9 @@ void wifi_init_sta()
 		
 	}
 
+    printf("WIFI STA SSID: %s\r\n" , ssid_arg);
+    printf("WIFI STA PASS: %s\r\n" , pass_arg);
+
     // //Initialize NVS
     // esp_err_t ret = nvs_flash_init();
     // if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -196,7 +206,7 @@ void wifi_init_sta()
      ESP_ERROR_CHECK(esp_netif_init());
 
      ESP_ERROR_CHECK(esp_event_loop_create_default());
-     p_netif = esp_netif_create_default_wifi_sta();
+     p_netif_sta = esp_netif_create_default_wifi_sta();
 
      wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
      ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -260,7 +270,16 @@ void wifi_init_sta()
         ESP_LOGI(TAG, "connected to AP");
 #endif
         isConnectedToWifi = true;
-#if IS_REMOTE_CON_ENABLE == 1      
+        esp_wifi_set_ps(WIFI_PS_NONE);
+#if IS_REMOTE_CON_ENABLE == 1   
+        vTaskDelay(3000 / portTICK_PERIOD_MS);
+
+        // tcpip_adapter_dns_info_t dns_info;
+        // tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_STA, TCPIP_ADAPTER_DNS_MAIN, &dns_info);
+        // printf("DNS: %s\n", ip4addr_ntoa(&dns_info.ip.u_addr.ip4));
+        // Start OTA task
+        // xTaskCreate(&ota_task, "ota_task", 8192, NULL, 5, NULL);
+
         xTaskCreate(aws_iot_task, "aws_iot_task", AWS_IOT_TASK_STACK_DEPTH, NULL, 5, NULL);
 #endif        	
     } else if (bits & WIFI_FAIL_BIT) {

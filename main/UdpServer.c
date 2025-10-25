@@ -1,5 +1,30 @@
 #include "context.h"
 
+#include <string.h>
+#include <sys/param.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "esp_system.h"
+#include "esp_wifi.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "nvs_flash.h"
+#include "esp_netif.h"
+#include "protocol_examples_common.h"
+
+#include "lwip/err.h"
+#include "lwip/sockets.h"
+#include "lwip/sys.h"
+#include <lwip/netdb.h>
+
+#define MULTICAST_TTL 20
+#define MULTICAST_IPV6_ADDR "FF02::FC"
+#define MULTICAST_IPV4_ADDR "232.10.11.12"
+#define UDP_DB
+
+#define V4TAG "V4TAG"
+
 int  pairing_step = 0;
 int  ap_step = 0;
 char temp_ssid[128] = "";
@@ -10,6 +35,9 @@ int  temp_password_len = 0;
 int  send_data_len = 0;
 bool response_required = false;
 long int random_code = 111111;
+
+#define CY_UDP_LOGE(fmt, ...) ESP_LOGE(TAG, fmt, ##__VA_ARGS__)
+#define CY_UDP_LOGI(fmt, ...) ESP_LOGI(TAG, fmt, ##__VA_ARGS__)
 
 void processData(int sock, int ip4 , char *rx_buffer , struct sockaddr *sourceAddr , int len){
 	
@@ -66,130 +94,262 @@ void processData(int sock, int ip4 , char *rx_buffer , struct sockaddr *sourceAd
 	
 }
 
+void test_udp_multicast_loopback(){
+	
+	int sock;
+    struct sockaddr_in multicast_addr;
+    struct ip_mreq mreq;
+    char rx_buffer[128];
+
+    sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    if (sock < 0) {
+		CY_UDP_LOGE("Failed to create socket. errno %d", errno);
+        vTaskDelete(NULL);
+        return;
+    }
+
+    struct sockaddr_in local_addr;
+    memset(&local_addr, 0, sizeof(local_addr));
+    local_addr.sin_family = AF_INET;
+    local_addr.sin_port = htons(UDP_PORT);
+    local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (bind(sock, (struct sockaddr *)&local_addr, sizeof(local_addr)) < 0) {
+        CY_UDP_LOGE("Bind failed. errno %d", errno);
+        close(sock);
+        vTaskDelete(NULL);
+        return;
+    }
+
+    inet_aton(MULTICAST_IPV4_ADDR, &mreq.imr_multiaddr.s_addr);
+    mreq.imr_interface.s_addr = htonl(INADDR_ANY); 
+    if (setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0) {
+        CY_UDP_LOGE("Failed to join multicast group. errno %d", errno);
+        close(sock);
+        vTaskDelete(NULL);
+        return;
+    }
+
+    uint8_t loop = 0;
+    setsockopt(sock, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop));
+
+    memset(&multicast_addr, 0, sizeof(multicast_addr));
+    multicast_addr.sin_family = AF_INET;
+    multicast_addr.sin_port = htons(UDP_PORT);
+    inet_aton(MULTICAST_IPV4_ADDR, &multicast_addr.sin_addr);
+
+    while (1) {
+      
+        char msg[] = "Hello Multicast Loopback!";
+        int err = sendto(sock, msg, strlen(msg), 0,
+                         (struct sockaddr *)&multicast_addr, sizeof(multicast_addr));
+        if (err < 0) {
+            CY_UDP_LOGE("Error sending multicast: errno %d", errno);
+        } else {
+            CY_UDP_LOGI("Sent multicast: %s", msg);
+        }
+
+        
+        struct sockaddr_in source_addr;
+        socklen_t socklen = sizeof(source_addr);
+        int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0,
+                           (struct sockaddr *)&source_addr, &socklen);
+        if (len > 0) {
+            rx_buffer[len] = 0;
+            CY_UDP_LOGI("Received multicast (loopback): %s", rx_buffer);
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(2000));
+    }
+
+    close(sock);
+    vTaskDelete(NULL);
+}
+
+int socket_add_ipv4_multicast_group(int sock)
+{
+    struct ip_mreq imreq = { 0 };
+    int err = 0;
+    imreq.imr_interface.s_addr = IPADDR_ANY;
+    err = inet_aton(MULTICAST_IPV4_ADDR, &imreq.imr_multiaddr.s_addr);
+    if (err != 1) {
+        ESP_LOGE(TAG, "Configured IPV4 multicast address '%s' is invalid.", MULTICAST_IPV4_ADDR);
+        err = -1;
+        return err;
+    }
+    ESP_LOGI(TAG, "Configured IPV4 Multicast address %s", inet_ntoa(imreq.imr_multiaddr.s_addr));
+    if (!IP_MULTICAST(ntohl(imreq.imr_multiaddr.s_addr))) {
+        ESP_LOGW(TAG, "Configured IPV4 multicast address '%s' is not a valid multicast address. This will probably not work.", MULTICAST_IPV4_ADDR);
+    }
+
+    err = setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP,
+                         &imreq, sizeof(struct ip_mreq));
+    if (err < 0) {
+        ESP_LOGE(TAG, "Failed to set IP_ADD_MEMBERSHIP. Error %d", errno);
+        return err;
+    }
+
+    return 0;
+}
+
+int socket_add_multicast_ipv6_group(int sock , int netif_index){
+	struct ipv6_mreq v6imreq = { 0 };
+	int err = 0;
+	
+    err = inet6_aton(MULTICAST_IPV6_ADDR, &v6imreq.ipv6mr_multiaddr);
+    if (err != 1) {
+        ESP_LOGE(TAG, "Configured IPV6 multicast address '%s' is invalid.", MULTICAST_IPV6_ADDR);
+        return err;
+    }
+    ESP_LOGI(TAG, "Configured IPV6 Multicast address %s", inet6_ntoa(v6imreq.ipv6mr_multiaddr));
+    
+	ip6_addr_t multi_addr;
+    inet6_addr_to_ip6addr(&multi_addr, &v6imreq.ipv6mr_multiaddr);
+    if (!ip6_addr_ismulticast(&multi_addr)) {
+        ESP_LOGW(TAG, "Configured IPV6 multicast address '%s' is not a valid multicast address. This will probably not work.", MULTICAST_IPV6_ADDR);
+    }
+
+    v6imreq.ipv6mr_interface = (unsigned int)netif_index;
+    err = setsockopt(sock, IPPROTO_IPV6, IPV6_ADD_MEMBERSHIP,
+                     &v6imreq, sizeof(struct ipv6_mreq));
+    if (err < 0) {
+        ESP_LOGE(TAG, "Failed to set IPV6_ADD_MEMBERSHIP. Error %d", errno);
+        return err;
+    }
+	
+	return err;
+
+}
+
+int create_udp_socket(int *sock){
+
+	struct sockaddr_in6 dest_addr;
+	dest_addr.sin6_family = AF_INET6;
+	dest_addr.sin6_port = htons(UDP_PORT);
+	bzero(&dest_addr.sin6_addr.un, sizeof(dest_addr.sin6_addr.un));
+	int err = -1;
+	
+	*sock = socket(PF_INET6, SOCK_DGRAM, IPPROTO_IPV6);
+	if (*sock < 0) {
+		CY_UDP_LOGE("Unable to create socket: errno %d", errno);
+		goto error_line;
+	}
+ 		
+	CY_UDP_LOGI("Socket created");
+
+	int reuse = 1;
+	setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+	int v6only = 0;
+	setsockopt(*sock, IPPROTO_IPV6, IPV6_V6ONLY, &v6only, sizeof(v6only));
+
+	err = bind(*sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+	if (err < 0) {
+		CY_UDP_LOGE("Socket unable to bind: errno %d", errno);
+		goto error_line;			
+	}
+	
+	int netif_index = esp_netif_get_netif_impl_index(p_netif_sta);
+	if(netif_index < 0) {
+		CY_UDP_LOGE("Failed to get netif index");
+		goto error_line;
+	}
+
+	err = setsockopt(*sock, IPPROTO_IPV6, IPV6_MULTICAST_IF, &netif_index, sizeof(unsigned int));
+	if (err < 0) {
+		CY_UDP_LOGE("Failed to set IPV6_MULTICAST_IF. Error %d", errno);
+		goto error_line;
+	}
+
+	uint8_t ttl = MULTICAST_TTL;
+	setsockopt(*sock, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &ttl, sizeof(uint8_t));
+	if (err < 0) {
+		CY_UDP_LOGE("Failed to set IPV6_MULTICAST_HOPS. Error %d", errno);
+		goto error_line;
+	}
+	err = socket_add_multicast_ipv6_group(*sock , netif_index);
+	if (err < 0) {
+		CY_UDP_LOGE("Failed to add multicast IPv6 group. Error %d", errno);
+		goto error_line;
+	}
+
+	err = socket_add_ipv4_multicast_group(*sock);
+	if (err < 0) {
+		CY_UDP_LOGE("Failed to add multicast IPv4 group. Error %d", errno);
+		goto error_line;
+	}
+	
+	return err;
+
+error_line:
+	if(err < 0 && *sock != -1){
+		close(*sock);
+		*sock = -1;
+	}
+	return err;
+}
+
 void udp_server_task(void *pvParameters)
 {
     char rx_buffer[128];
     char addr_str [128];
-    int addr_family = (int)pvParameters;
-	
-    int ip_protocol = 0;
-    struct sockaddr_in6 dest_addr;
+    
+	int sock = -1;
 
     while (1) {
 
-        if (addr_family == AF_INET) {
-            struct sockaddr_in *dest_addr_ip4 = (struct sockaddr_in *)&dest_addr;
-            dest_addr_ip4->sin_addr.s_addr = htonl(INADDR_ANY);
-            dest_addr_ip4->sin_family = AF_INET;
-            dest_addr_ip4->sin_port = htons(UDP_PORT);
-            ip_protocol = IPPROTO_IP;
-        } else if (addr_family == AF_INET6) {
-            bzero(&dest_addr.sin6_addr.un, sizeof(dest_addr.sin6_addr.un));
-            dest_addr.sin6_family = AF_INET6;
-            dest_addr.sin6_port = htons(UDP_PORT);
-            ip_protocol = IPPROTO_IPV6;
-        }
-
-        int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
-        if (sock < 0) {
-#ifdef UDP_DB			
-            ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
-#endif			
+		if (create_udp_socket(&sock) < 0) {
 			vTaskDelay(1000 / portTICK_PERIOD_MS);
-            continue;
-        }
-#ifdef UDP_DB 		
-        ESP_LOGI(TAG, "Socket created");
-#endif
-
-#if defined(CONFIG_EXAMPLE_IPV4) && defined(CONFIG_EXAMPLE_IPV6)
-        if (addr_family == AF_INET6) {
-            // Note that by default IPV6 binds to both protocols, it is must be disabled
-            // if both protocols used at the same time (used in CI)
-            int opt = 1;
-            setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-            setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &opt, sizeof(opt));
-        }
-#endif
-
-        int err = bind(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-        if (err < 0) {
-#ifdef UDP_DB 			
-            ESP_LOGE(TAG, "Socket unable to bind: errno %d", errno);
-#endif			
-        }
+			continue;
+		}
 
         while (1) {
-#ifdef UDP_DB 	
-			ESP_LOGI(TAG, "Waiting for data");
-#endif			
+			CY_UDP_LOGI("Waiting for data");			
 			struct sockaddr_storage source_addr; 
 			socklen_t socklen = sizeof(source_addr);
 			int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0, (struct sockaddr *)&source_addr, &socklen);
 
-			// Error occurred during receiving
 			if (len < 0) {
-#ifdef UDP_DB 				
-				ESP_LOGE(TAG, "recvfrom failed: errno %d", errno);
-#endif				
+				CY_UDP_LOGE("recvfrom failed: errno %d", errno);
 				break;
 			}
-			// Data received
 			else {
-				// Get the sender's ip address as string
 				if (source_addr.ss_family == PF_INET) {
 					inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1);
 				} else if (source_addr.ss_family == PF_INET6) {
 					inet6_ntoa_r(((struct sockaddr_in6 *)&source_addr)->sin6_addr, addr_str, sizeof(addr_str) - 1);
 				}
 
-				if(rx_buffer[0] == 'p' && rx_buffer[1] == 'n' && rx_buffer[2] == 'g'){
-					char temp10[32];
-					int png_len = sprintf(temp10 , "A%d.%d.%d.%d\r\n" , ip1 , ip2 , ip3 , ip4);
-					sendto(sock, temp10 , png_len, 0, (struct sockaddr *)&source_addr, sizeof(source_addr));
-				}else{
-					int temp_ip4 = get_ip4(addr_str , sizeof(addr_str));
+				int temp_ip4 = get_ip4(addr_str , sizeof(addr_str));
 
-					rx_buffer[len] = 0; // Null-terminate whatever we received and treat like a string...
-#ifdef UDP_DB 				
-					unsigned char mac_str[20];
-					ESP_LOGI(TAG, "Received %d bytes from %s:", len, addr_str);
-					ESP_LOGI(TAG, "%s", rx_buffer);
-					esp_base_mac_addr_get(mac_str);
-					ESP_LOGI(TAG, "BASE: %02X %02X %02X %02X %02X %02X", mac_str[0], mac_str[1], mac_str[2], mac_str[3], mac_str[4], mac_str[5]);
-					esp_efuse_mac_get_default(mac_str);				
-					ESP_LOGI(TAG, "EFUSE: %02X %02X %02X %02X %02X %02X", mac_str[0], mac_str[1], mac_str[2], mac_str[3], mac_str[4], mac_str[5]);
-#endif
-					if(temp_ip4 < 256){
-						processData(sock , temp_ip4 , rx_buffer , (struct sockaddr *)&source_addr , len);
-					}
-		
-					if(response_required){
-
-						// printf(send_data);	
-						
-						int err = sendto(sock, send_data, send_data_len, 0, (struct sockaddr *)&source_addr, sizeof(source_addr));
-						
-						if (err < 0) {
-	#ifdef UDP_DB 						
-							ESP_LOGE(TAG, "Error occured during sending: errno %d", errno);
-	#endif						
-							break;
-						}
-
-					}
+				rx_buffer[len] = 0; 
+			
+				unsigned char mac_str[20];
+				CY_UDP_LOGI("Received %d bytes from %s:", len, addr_str);
+				CY_UDP_LOGI("%s", rx_buffer);
+				esp_base_mac_addr_get(mac_str);
+				CY_UDP_LOGI("BASE: %02X %02X %02X %02X %02X %02X", mac_str[0], mac_str[1], mac_str[2], mac_str[3], mac_str[4], mac_str[5]);
+				esp_efuse_mac_get_default(mac_str);				
+				CY_UDP_LOGI("EFUSE: %02X %02X %02X %02X %02X %02X", mac_str[0], mac_str[1], mac_str[2], mac_str[3], mac_str[4], mac_str[5]);
+				if(temp_ip4 < 256){
+					processData(sock , temp_ip4 , rx_buffer , (struct sockaddr *)&source_addr , len);
 				}
+	
+				if(response_required){						
+					int err = sendto(sock, send_data, send_data_len, 0, (struct sockaddr *)&source_addr, sizeof(source_addr));
+					
+					if (err < 0) {
+						CY_UDP_LOGE("Error occured during sending: errno %d", errno);
+						break;
+					}
 
-
+				}
 
 			}
 
         }
 
         if (sock != -1) {
-#ifdef UDP_DB 			
-            ESP_LOGE(TAG, "Shutting down socket and restarting...");
-#endif			
+            CY_UDP_LOGE("Shutting down socket and restarting...");
             shutdown(sock, 0);
             close(sock);
         }

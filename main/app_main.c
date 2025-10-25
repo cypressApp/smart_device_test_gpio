@@ -34,6 +34,9 @@
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
+#include "esp_ota_ops.h"
+#include "esp_https_ota.h"
+#include "constants.h"
 
 esp_err_t init_nvs_flash(){
   esp_err_t ret = nvs_flash_init();
@@ -44,6 +47,7 @@ esp_err_t init_nvs_flash(){
 
 void app_main()
 {
+
     ESP_LOGI(TAG, "[APP] Startup..");
     ESP_LOGI(TAG, "[APP] Free memory: %"PRIu32" bytes", esp_get_free_heap_size());
     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
@@ -64,8 +68,8 @@ void app_main()
 
     if(memcmp(flash_wifi_mode , WIFI_STA_MODE , 6) == 0){
 
-        sprintf(ssid_arg , flash_router_ssid);
-        sprintf(pass_arg , flash_router_password);
+        sprintf(ssid_arg , flash_router_ssid);//"GalaxyA35");//"Xiaomi326589");//flash_router_ssid);
+        sprintf(pass_arg , flash_router_password);//"Majid4321");//flash_router_password);
         
         xTaskCreate(wifi_init_sta, "wifi_init_sta_task", WIFI_STA_MODE_TASK_STACK_DEPTH, NULL, 5, NULL);		
         wifi_if_mode = STA_MODE; 

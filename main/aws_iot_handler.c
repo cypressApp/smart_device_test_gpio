@@ -1,6 +1,10 @@
 #include "context.h"
 #include "freertos/semphr.h"
 
+#define CY_AWS_LOGE(fmt, ...) ESP_LOGE(TAG, fmt, ##__VA_ARGS__)
+#define CY_AWS_LOGI(fmt, ...) ESP_LOGI(TAG, fmt, ##__VA_ARGS__)
+#define CY_AWS_LOGW(fmt, ...) ESP_LOGW(TAG, fmt, ##__VA_ARGS__)
+
 bool is_connected_to_server = false;
 
 typedef struct PublishPackets
@@ -51,6 +55,26 @@ char is_aws_iot_command_buffer_handler_idle = true;
 static int initializeMqtt( MQTTContext_t * pMqttContext,
                            NetworkContext_t * pNetworkContext );
 
+void process_aws_iot_get_info_command( MQTTContext_t * pMqttContext, const char *command , int command_length){
+
+    memcpy( aws_iot_command_buffer[new_aws_iot_command_buffer_counter] , command , sizeof(aws_iot_command_buffer[new_aws_iot_command_buffer_counter]));
+    new_aws_iot_command_buffer_counter++;
+    if(new_aws_iot_command_buffer_counter >= 1024){
+        new_aws_iot_command_buffer_counter = 0;
+    }
+
+    char *temp_response = (char *) calloc(256 , sizeof(char)); 
+
+    if(!memcmp(command, SCAN_COMMAND , SCAN_COMMAND_LEN)){
+        sprintf(temp_response, "%s,%s,%s,%s", AWS_SCAN_RESPONSE, TERMINAL_NAME, DEVICE_TYPE, MINOR_ID);
+        publishToTopic(pMqttContext , MQTT_GET_INFO_RESPONSE_TOPIC , temp_response);
+        free(temp_response);
+        return;
+    }
+
+
+}
+
 void process_aws_iot_command( MQTTContext_t * pMqttContext, const char *command , int command_length){
 
     memcpy( aws_iot_command_buffer[new_aws_iot_command_buffer_counter] , command , sizeof(aws_iot_command_buffer[new_aws_iot_command_buffer_counter]));
@@ -62,23 +86,17 @@ void process_aws_iot_command( MQTTContext_t * pMqttContext, const char *command 
     char *temp_response = (char *) calloc(256 , sizeof(char)); 
     bool is_command_valid = true;
 
-    if(!memcmp(command, SCAN_COMMAND , SCAN_COMMAND_LEN)){
-        memcpy(temp_response , AWS_SCAN_RESPONSE , AWS_SCAN_RESPONSE_LEN);
-        publishToTopic(pMqttContext , MQTT_RESPONSE_TOPIC , temp_response);
-        free(temp_response);
-        return;
-    }
     /**
      * For handling remote commands enter your code here
      */
-    // else if(/* command */){
-
-
-        // is_command_valid = true;
+    // if(/* command */){
+    //     is_command_valid = true;
     // }
-    else{
-        is_command_valid = false;
-    }
+    // else{
+    //     is_command_valid = false;
+    // }
+
+    sprintf(temp_response , "Hi I'm ESP32 Smart Device: Remote\n");
 
     if(is_command_valid){
         update_response_id();
@@ -86,9 +104,9 @@ void process_aws_iot_command( MQTTContext_t * pMqttContext, const char *command 
         sprintf(temp_response2, "%d:%s", response_id , temp_response);
         publishToTopic(pMqttContext , MQTT_RESPONSE_TOPIC , temp_response2);
     }
-#ifdef DB_AWS_IOT
-    printf("%.*s   %d\r\n" , command_length , command , command_length);
-#endif
+
+    CY_AWS_LOGI("%.*s   %d\r\n" , command_length , command , command_length);
+
     free(temp_response);
 
 }
@@ -148,24 +166,18 @@ static int connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext
 
 #elif defined(CONFIG_EXAMPLE_USE_ESP_SECURE_CERT_MGR)
     if (esp_secure_cert_get_device_cert(&pNetworkContext->pcClientCert, &pNetworkContext->pcClientCertSize) != ESP_OK) {
-#ifdef DB_AWS_IOT        
-        LogError( ( "Failed to obtain flash address of device cert") );
-#endif
+        CY_AWS_LOGE("Failed to obtain flash address of device cert");
         return EXIT_FAILURE;
     }
 #ifdef CONFIG_ESP_SECURE_CERT_DS_PERIPHERAL
     pNetworkContext->ds_data = esp_secure_cert_get_ds_ctx();
     if (pNetworkContext->ds_data == NULL) {
-#ifdef DB_AWS_IOT        
-        LogError( ( "Failed to obtain the ds context") );
-#endif        
+        CY_AWS_LOGE("Failed to obtain the ds context");
         return EXIT_FAILURE;
     }
 #else /* !CONFIG_ESP_SECURE_CERT_DS_PERIPHERAL */
     if (esp_secure_cert_get_priv_key(&pNetworkContext->pcClientKey, &pNetworkContext->pcClientKeySize) != ESP_OK) {
-#ifdef DB_AWS_IOT        
-        LogError( ( "Failed to obtain flash address of private_key") );
-#endif        
+        CY_AWS_LOGE("Failed to obtain flash address of private_key");     
         return EXIT_FAILURE;
     }
 #endif /* CONFIG_ESP_SECURE_CERT_DS_PERIPHERAL */
@@ -225,12 +237,12 @@ static int connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext
         /* Establish a TLS session with the MQTT broker. This example connects
          * to the MQTT broker as specified in AWS_IOT_ENDPOINT and AWS_MQTT_PORT
          * at the demo config header. */
-#ifdef DB_AWS_IOT        
-        LogInfo( ( "Establishing a TLS session to %.*s:%d.",
+
+        CY_AWS_LOGI("Establishing a TLS session to %.*s:%d.",
                    AWS_IOT_ENDPOINT_LENGTH,
                    AWS_IOT_ENDPOINT,
-                   AWS_MQTT_PORT ) );
-#endif
+                   AWS_MQTT_PORT);
+
         // tlsStatus = xTlsDisconnect ( pNetworkContext );
         tlsStatus = xTlsConnect ( pNetworkContext );
 
@@ -262,18 +274,15 @@ static int connectToServerWithBackoffRetries( NetworkContext_t * pNetworkContext
 
             if( backoffAlgStatus == BackoffAlgorithmRetriesExhausted )
             {
-#ifdef DB_AWS_IOT                
-                LogError( ( "Connection to the broker failed, all attempts exhausted." ) );
-#endif
+             
+                CY_AWS_LOGE("Connection to the broker failed, all attempts exhausted." );
                 returnStatus = EXIT_FAILURE;
             }
             else if( backoffAlgStatus == BackoffAlgorithmSuccess )
             {
-#ifdef DB_AWS_IOT                
-                LogWarn( ( "Connection to the broker failed. Retrying connection "
+                CY_AWS_LOGW("Connection to the broker failed. Retrying connection "
                            "after %hu ms backoff.",
-                           ( unsigned short ) nextRetryBackOff ) );
-#endif
+                           ( unsigned short ) nextRetryBackOff );
                 Clock_SleepMs( nextRetryBackOff );
             }
         }
@@ -349,10 +358,8 @@ static void cleanupOutgoingPublishWithPacketID( uint16_t packetId )
         if( outgoingPublishPackets[ index ].packetId == packetId )
         {
             cleanupOutgoingPublishAt( index );
-#ifdef DB_AWS_IOT            
-            LogInfo( ( "Cleaned up outgoing publish packet with packet id %u.\n\n",
-                       packetId ) );
-#endif
+            CY_AWS_LOGI("Cleaned up outgoing publish packet with packet id %u.\n\n",
+                       packetId );
             break;
         }
     }
@@ -392,42 +399,34 @@ static int handlePublishResend( MQTTContext_t * pMqttContext )
             {
                 foundPacketId = true;
                 outgoingPublishPackets[ index ].pubInfo.dup = true;
-#ifdef DB_AWS_IOT
-                LogInfo( ( "Sending duplicate PUBLISH with packet id %u.",
-                           outgoingPublishPackets[ index ].packetId ) );
-#endif
+                CY_AWS_LOGI("Sending duplicate PUBLISH with packet id %u.",
+                           outgoingPublishPackets[ index ].packetId );
                 mqttStatus = MQTT_Publish( pMqttContext,
                                            &outgoingPublishPackets[ index ].pubInfo,
                                            outgoingPublishPackets[ index ].packetId );
 
                 if( mqttStatus != MQTTSuccess )
                 {
-#ifdef DB_AWS_IOT                    
-                    LogError( ( "Sending duplicate PUBLISH for packet id %u "
+                    CY_AWS_LOGE("Sending duplicate PUBLISH for packet id %u "
                                 " failed with status %s.",
                                 outgoingPublishPackets[ index ].packetId,
-                                MQTT_Status_strerror( mqttStatus ) ) );
-#endif
+                                MQTT_Status_strerror( mqttStatus ) );
                     returnStatus = EXIT_FAILURE;
                     break;
                 }
                 else
                 {
-#ifdef DB_AWS_IOT                    
-                    LogInfo( ( "Sent duplicate PUBLISH successfully for packet id %u.\n\n",
-                               outgoingPublishPackets[ index ].packetId ) );
-#endif
+                    CY_AWS_LOGI("Sent duplicate PUBLISH successfully for packet id %u.\n\n",
+                               outgoingPublishPackets[ index ].packetId );
                 }
             }
         }
 
         if( foundPacketId == false )
         {
-#ifdef DB_AWS_IOT            
-            LogError( ( "Packet id %u requires resend, but was not found in "
+            CY_AWS_LOGE("Packet id %u requires resend, but was not found in "
                         "outgoingPublishPackets.",
-                        packetIdToResend ) );
-#endif
+                        packetIdToResend );
             returnStatus = EXIT_FAILURE;
             break;
         }
@@ -449,35 +448,48 @@ static void handleIncomingPublish( MQTTContext_t * pMqttContext,
 {
 
     assert( pPublishInfo != NULL );
-#ifdef DB_AWS_IOT
+
     /* Process incoming Publish. */
-    LogInfo( ( "Incoming QOS : %d.", pPublishInfo->qos ) );
-#endif
+    // CY_AWS_LOGI( "Incoming QOS : %d.", pPublishInfo->qos);
+
+    bool isTopicMatched = true;
+
     /* Verify the received publish is for the topic we have subscribed to. */
     if( ( pPublishInfo->topicNameLength == MQTT_COMMAND_TOPIC_LENGTH ) &&
         ( 0 == strncmp( MQTT_COMMAND_TOPIC,
                         pPublishInfo->pTopicName,
                         pPublishInfo->topicNameLength ) ) )
     {
-#ifdef DB_AWS_IOT        
-        LogInfo( ( "Incoming Publish Topic Name: %.*s matches subscribed topic.\n"
-                   "Incoming Publish message Packet Id is %u.\n"
-                   "Incoming Publish Message : %.*s.\n\n",
-                   pPublishInfo->topicNameLength,
-                   pPublishInfo->pTopicName,
-                   packetIdentifier,
-                   ( int ) pPublishInfo->payloadLength,
-                   ( const char * ) pPublishInfo->pPayload ) );
-#endif                   
-        process_aws_iot_command(pMqttContext , ( const char * ) pPublishInfo->pPayload , ( int ) pPublishInfo->payloadLength);           
+        process_aws_iot_command(pMqttContext , 
+            ( const char * ) pPublishInfo->pPayload , 
+            ( int ) pPublishInfo->payloadLength);
+    }
+    else if( ( pPublishInfo->topicNameLength == MQTT_GET_INFO_COMMAND_TOPIC_LENGTH ) &&
+        ( 0 == strncmp( MQTT_GET_INFO_COMMAND_TOPIC,
+                        pPublishInfo->pTopicName,
+                        pPublishInfo->topicNameLength ) ) )
+    {
+        process_aws_iot_get_info_command(pMqttContext , 
+            ( const char * ) pPublishInfo->pPayload , 
+            ( int ) pPublishInfo->payloadLength);
     }
     else
     {
-#ifdef DB_AWS_IOT        
-        LogInfo( ( "Incoming Publish Topic Name: %.*s does not match subscribed topic.",
-                   pPublishInfo->topicNameLength,
-                   pPublishInfo->pTopicName ) );
-#endif
+        isTopicMatched = false;
+        // CY_AWS_LOGI( "Incoming Publish Topic Name: %.*s does not match subscribed topic.",
+        //            pPublishInfo->topicNameLength,
+        //            pPublishInfo->pTopicName );
+    }
+
+    if(isTopicMatched){
+        // CY_AWS_LOGI( "Incoming Publish Topic Name: %.*s matches subscribed topic.\n"
+        //            "Incoming Publish message Packet Id is %u.\n"
+        //            "Incoming Publish Message : %.*s.\n\n",
+        //            pPublishInfo->topicNameLength,
+        //            pPublishInfo->pTopicName,
+        //            packetIdentifier,
+        //            ( int ) pPublishInfo->payloadLength,
+        //            ( const char * ) pPublishInfo->pPayload );
     }
 }
 
@@ -545,12 +557,10 @@ static void eventCallback( MQTTContext_t * pMqttContext,
                  * by the server, indicating a successful subscription attempt. */
                 if( globalSubAckStatus != MQTTSubAckFailure )
                 {
-#ifdef DB_AWS_IOT                      
-                    LogInfo( ( "Subscribed to the topic %.*s. with maximum QoS %u.\n\n",
+                    CY_AWS_LOGI("Subscribed to the topic %.*s. with maximum QoS %u.\n\n",
                                MQTT_COMMAND_TOPIC_LENGTH,
                                MQTT_COMMAND_TOPIC,
-                               globalSubAckStatus ) );
-#endif                               
+                               globalSubAckStatus );
                 }
 
                 /* Make sure ACK packet identifier matches with Request packet identifier. */
@@ -561,11 +571,9 @@ static void eventCallback( MQTTContext_t * pMqttContext,
                 break;
 
             case MQTT_PACKET_TYPE_UNSUBACK:
-#ifdef DB_AWS_IOT              
-                LogInfo( ( "Unsubscribed from the topic %.*s.\n\n",
+                CY_AWS_LOGI("Unsubscribed from the topic %.*s.\n\n",
                            MQTT_COMMAND_TOPIC_LENGTH,
-                           MQTT_COMMAND_TOPIC ) );
-#endif
+                           MQTT_COMMAND_TOPIC );
                 /* Make sure ACK packet identifier matches with Request packet identifier. */
                 assert( globalUnsubscribePacketIdentifier == packetIdentifier );
 
@@ -574,19 +582,15 @@ static void eventCallback( MQTTContext_t * pMqttContext,
                 break;
 
             case MQTT_PACKET_TYPE_PINGRESP:
-#ifdef DB_AWS_IOT  
                 /* Nothing to be done from application as library handles
                  * PINGRESP. */
-                LogWarn( ( "PINGRESP should not be handled by the application "
-                           "callback when using MQTT_ProcessLoop.\n\n" ) );
-#endif                
+                CY_AWS_LOGW("PINGRESP should not be handled by the application "
+                           "callback when using MQTT_ProcessLoop.\n\n");
                 break;
 
             case MQTT_PACKET_TYPE_PUBACK:
-#ifdef DB_AWS_IOT  
-                LogInfo( ( "PUBACK received for packet id %u.\n\n",
-                           packetIdentifier ) );
-#endif
+                CY_AWS_LOGI("PUBACK received for packet id %u.\n\n",
+                           packetIdentifier );
                 /* Cleanup publish packet when a PUBACK is received. */
                 cleanupOutgoingPublishWithPacketID( packetIdentifier );
 
@@ -596,10 +600,10 @@ static void eventCallback( MQTTContext_t * pMqttContext,
 
             /* Any other packet type is invalid. */
             default:
-#ifdef DB_AWS_IOT  
-                LogError( ( "Unknown packet type received:(%02x).\n\n",
-                            pPacketInfo->type ) );
-#endif
+
+                CY_AWS_LOGE("Unknown packet type received:(%02x).\n\n",
+                            pPacketInfo->type );
+
         }
     }
 }
@@ -674,16 +678,12 @@ int establishMqttSession( MQTTContext_t * pMqttContext,
     if( mqttStatus != MQTTSuccess )
     {
         returnStatus = EXIT_FAILURE;
-#ifdef DB_AWS_IOT          
-        LogError( ( "Connection with MQTT broker failed with status %s.",
-                    MQTT_Status_strerror( mqttStatus ) ) );
-#endif    
+        CY_AWS_LOGE("Connection with MQTT broker failed with status %s.",
+                    MQTT_Status_strerror(mqttStatus));
     }
     else
     {
-#ifdef DB_AWS_IOT          
-        LogInfo( ( "MQTT connection successfully established with broker.\n\n" ) );
-#endif    
+        CY_AWS_LOGI("MQTT connection successfully established with broker.\n\n");
     }
 
     return returnStatus;
@@ -703,11 +703,64 @@ static int disconnectMqttSession( MQTTContext_t * pMqttContext )
 
     if( mqttStatus != MQTTSuccess )
     {
-#ifdef DB_AWS_IOT          
-        LogError( ( "Sending MQTT DISCONNECT failed with status=%s.",
-                    MQTT_Status_strerror( mqttStatus ) ) );
-#endif                    
+        CY_AWS_LOGE("Sending MQTT DISCONNECT failed with status=%s.",
+                    MQTT_Status_strerror(mqttStatus));
         returnStatus = EXIT_FAILURE;
+    }
+
+    return returnStatus;
+}
+
+int SUBSCRIBE_TOPICS_SIZE = 2;
+
+const char *subscribeTopics[] = {
+    MQTT_COMMAND_TOPIC,
+    MQTT_GET_INFO_COMMAND_TOPIC
+};
+
+const uint16_t subscribeTopicLengths[] = {
+    MQTT_COMMAND_TOPIC_LENGTH,
+    MQTT_GET_INFO_COMMAND_TOPIC_LENGTH
+};
+
+/*-----------------------------------------------------------*/
+
+static int subscribeToTopics(MQTTContext_t *pMqttContext)
+{
+    int returnStatus = EXIT_SUCCESS;
+    MQTTStatus_t mqttStatus;
+
+    assert(pMqttContext != NULL);
+
+    /* Clear the subscription list */
+    (void) memset((void *)pGlobalSubscriptionList, 0x00, sizeof(pGlobalSubscriptionList));
+
+    /* Fill subscription list with all topics */
+    for (int i = 0; i < SUBSCRIBE_TOPICS_SIZE; i++)
+    {
+        pGlobalSubscriptionList[i].qos = MQTTQoS1;
+        pGlobalSubscriptionList[i].pTopicFilter = (char *)subscribeTopics[i];
+        pGlobalSubscriptionList[i].topicFilterLength = subscribeTopicLengths[i];
+    }
+
+    /* Generate packet identifier */
+    globalSubscribePacketIdentifier = MQTT_GetPacketId(pMqttContext);
+
+    /* Send SUBSCRIBE packet */
+    mqttStatus = MQTT_Subscribe(pMqttContext,
+                                pGlobalSubscriptionList,
+                                SUBSCRIBE_TOPICS_SIZE,
+                                globalSubscribePacketIdentifier);
+
+    if (mqttStatus != MQTTSuccess)
+    {
+        CY_AWS_LOGE("Failed to send SUBSCRIBE packet to broker with error = %s.",
+                  MQTT_Status_strerror(mqttStatus));
+        returnStatus = EXIT_FAILURE;
+    }
+    else
+    {
+        CY_AWS_LOGI("SUBSCRIBE sent for %d topics to broker.\n\n", SUBSCRIBE_TOPICS_SIZE);
     }
 
     return returnStatus;
@@ -715,95 +768,47 @@ static int disconnectMqttSession( MQTTContext_t * pMqttContext )
 
 /*-----------------------------------------------------------*/
 
-static int subscribeToTopic( MQTTContext_t * pMqttContext )
+static int unsubscribeFromTopics(MQTTContext_t *pMqttContext)
 {
     int returnStatus = EXIT_SUCCESS;
     MQTTStatus_t mqttStatus;
 
-    assert( pMqttContext != NULL );
+    assert(pMqttContext != NULL);
 
-    /* Start with everything at 0. */
-    ( void ) memset( ( void * ) pGlobalSubscriptionList, 0x00, sizeof( pGlobalSubscriptionList ) );
+    /* Clear the subscription list */
+    (void) memset((void *)pGlobalSubscriptionList, 0x00, sizeof(pGlobalSubscriptionList));
 
-    pGlobalSubscriptionList[ 0 ].qos = MQTTQoS1;
-    pGlobalSubscriptionList[ 0 ].pTopicFilter = MQTT_COMMAND_TOPIC;
-    pGlobalSubscriptionList[ 0 ].topicFilterLength = MQTT_COMMAND_TOPIC_LENGTH;
 
-    /* Generate packet identifier for the SUBSCRIBE packet. */
-    globalSubscribePacketIdentifier = MQTT_GetPacketId( pMqttContext );
-
-    /* Send SUBSCRIBE packet. */
-    mqttStatus = MQTT_Subscribe( pMqttContext,
-                                 pGlobalSubscriptionList,
-                                 sizeof( pGlobalSubscriptionList ) / sizeof( MQTTSubscribeInfo_t ),
-                                 globalSubscribePacketIdentifier );
-
-    if( mqttStatus != MQTTSuccess )
+    for (int i = 0; i < SUBSCRIBE_TOPICS_SIZE; i++)
     {
-#ifdef DB_AWS_IOT          
-        LogError( ( "Failed to send SUBSCRIBE packet to broker with error = %s.",
-                    MQTT_Status_strerror( mqttStatus ) ) );
-#endif                    
+        pGlobalSubscriptionList[i].qos = MQTTQoS1; // QOS is not used for unsubscribe but kept for structure
+        pGlobalSubscriptionList[i].pTopicFilter = (char *)subscribeTopics[i];
+        pGlobalSubscriptionList[i].topicFilterLength = subscribeTopicLengths[i];
+    }
+
+    /* Generate packet identifier */
+    globalUnsubscribePacketIdentifier = MQTT_GetPacketId(pMqttContext);
+
+    /* Send UNSUBSCRIBE packet */
+    mqttStatus = MQTT_Unsubscribe(pMqttContext,
+                                  pGlobalSubscriptionList,
+                                  SUBSCRIBE_TOPICS_SIZE,
+                                  globalUnsubscribePacketIdentifier);
+
+    if (mqttStatus != MQTTSuccess)
+    {
+        CY_AWS_LOGE("Failed to send UNSUBSCRIBE packet to broker with error = %s.",
+                  MQTT_Status_strerror(mqttStatus));
         returnStatus = EXIT_FAILURE;
     }
     else
     {
-#ifdef DB_AWS_IOT          
-        LogInfo( ( "SUBSCRIBE sent for topic %.*s to broker.\n\n",
-                   MQTT_COMMAND_TOPIC_LENGTH,
-                   MQTT_COMMAND_TOPIC ) );
-#endif
+        CY_AWS_LOGI("UNSUBSCRIBE sent for %d topics to broker.\n\n", SUBSCRIBE_TOPICS_SIZE);
     }
 
     return returnStatus;
 }
 
-/*-----------------------------------------------------------*/
-
-static int unsubscribeFromTopic( MQTTContext_t * pMqttContext )
-{
-    int returnStatus = EXIT_SUCCESS;
-    MQTTStatus_t mqttStatus;
-
-    assert( pMqttContext != NULL );
-
-    /* Start with everything at 0. */
-    ( void ) memset( ( void * ) pGlobalSubscriptionList, 0x00, sizeof( pGlobalSubscriptionList ) );
-
-    /* This example subscribes to and unsubscribes from only one topic
-     * and uses QOS1. */
-    pGlobalSubscriptionList[ 0 ].qos = MQTTQoS1;
-    pGlobalSubscriptionList[ 0 ].pTopicFilter = MQTT_COMMAND_TOPIC;
-    pGlobalSubscriptionList[ 0 ].topicFilterLength = MQTT_COMMAND_TOPIC_LENGTH;
-
-    /* Generate packet identifier for the UNSUBSCRIBE packet. */
-    globalUnsubscribePacketIdentifier = MQTT_GetPacketId( pMqttContext );
-
-    /* Send UNSUBSCRIBE packet. */
-    mqttStatus = MQTT_Unsubscribe( pMqttContext,
-                                   pGlobalSubscriptionList,
-                                   sizeof( pGlobalSubscriptionList ) / sizeof( MQTTSubscribeInfo_t ),
-                                   globalUnsubscribePacketIdentifier );
-
-    if( mqttStatus != MQTTSuccess )
-    {
-#ifdef DB_AWS_IOT  
-        LogError( ( "Failed to send UNSUBSCRIBE packet to broker with error = %s.",
-                    MQTT_Status_strerror( mqttStatus ) ) );
-#endif
-        returnStatus = EXIT_FAILURE;
-    }
-    else
-    {
-#ifdef DB_AWS_IOT          
-        LogInfo( ( "UNSUBSCRIBE sent for topic %.*s to broker.\n\n",
-                   MQTT_COMMAND_TOPIC_LENGTH,
-                   MQTT_COMMAND_TOPIC ) );
-#endif
-    }
-
-    return returnStatus;
-}
 
 
 int publishToTopic( MQTTContext_t * pMqttContext , char *msg_topic , char *message )
@@ -824,9 +829,7 @@ int publishToTopic( MQTTContext_t * pMqttContext , char *msg_topic , char *messa
 
     if( returnStatus == EXIT_FAILURE )
     {
-#ifdef DB_AWS_IOT          
-        LogError( ( "Unable to find a free spot for outgoing PUBLISH message.\n\n" ) );
-#endif
+        CY_AWS_LOGE("Unable to find a free spot for outgoing PUBLISH message.\n\n");
     }
     else
     {
@@ -849,10 +852,8 @@ int publishToTopic( MQTTContext_t * pMqttContext , char *msg_topic , char *messa
 
         if( mqttStatus != MQTTSuccess )
         {
-#ifdef DB_AWS_IOT  
-            LogError( ( "Failed to send PUBLISH packet to broker with error = %s.",
-                        MQTT_Status_strerror( mqttStatus ) ) );
-#endif
+            CY_AWS_LOGE("Failed to send PUBLISH packet to broker with error = %s.",
+                        MQTT_Status_strerror( mqttStatus ) );
             cleanupOutgoingPublishAt( publishIndex );
             // reconnect_to_server();
             returnStatus = EXIT_FAILURE;
@@ -860,12 +861,12 @@ int publishToTopic( MQTTContext_t * pMqttContext , char *msg_topic , char *messa
         else
         {
             // cleanupOutgoingPublishAt( publishIndex );
-#ifdef DB_AWS_IOT  
-            LogInfo( ( "PUBLISH sent for topic %.*s to broker with packet ID %u.\n\n",
+ 
+            CY_AWS_LOGI("PUBLISH sent for topic %.*s to broker with packet ID %u.\n\n",
                     MQTT_RESPONSE_TOPIC_LENGTH,
                     MQTT_RESPONSE_TOPIC,
-                    outgoingPublishPackets[ publishIndex ].packetId ) );
-#endif
+                    outgoingPublishPackets[ publishIndex ].packetId);
+
         }
 
 
@@ -905,9 +906,7 @@ static int initializeMqtt( MQTTContext_t * pMqttContext,
     if( mqttStatus != MQTTSuccess )
     {
         returnStatus = EXIT_FAILURE;
-#ifdef DB_AWS_IOT          
-        LogError( ( "MQTT_Init failed: Status = %s.", MQTT_Status_strerror( mqttStatus ) ) );
-#endif
+        CY_AWS_LOGE("MQTT_Init failed: Status = %s.", MQTT_Status_strerror( mqttStatus ));
     }
     else
     {
@@ -919,9 +918,9 @@ static int initializeMqtt( MQTTContext_t * pMqttContext,
         if( mqttStatus != MQTTSuccess )
         {
             returnStatus = EXIT_FAILURE;
-#ifdef DB_AWS_IOT  
-            LogError( ( "MQTT_InitStatefulQoS failed: Status = %s.", MQTT_Status_strerror( mqttStatus ) ) );
-#endif
+
+            CY_AWS_LOGE("MQTT_InitStatefulQoS failed: Status = %s.", MQTT_Status_strerror( mqttStatus ));
+
         }
     }
 
@@ -961,12 +960,14 @@ static int waitForPacketAck( MQTTContext_t * pMqttContext,
     if( ( ( eMqttStatus != MQTTSuccess ) && ( eMqttStatus != MQTTNeedMoreBytes ) ) ||
         ( globalAckPacketIdentifier != usPacketIdentifier ) )
     {
-#ifdef DB_AWS_IOT  
-        // LogError( ( "MQTT_ProcessLoop failed to receive ACK packet: Expected ACK Packet ID=%02"PRIx16", LoopDuration=%"PRIu32", Status=%s",
-        //             usPacketIdentifier,
-        //             ( ulCurrentTime - ulMqttProcessLoopEntryTime ),
-        //             MQTT_Status_strerror( eMqttStatus ) ) );
-#endif
+
+        // CY_AWS_LOGE(
+        //     "MQTT_ProcessLoop failed to receive ACK packet: Expected ACK Packet ID=%02\"PRIx16\", LoopDuration=%\"PRIu32\", Status=%s",
+        //     usPacketIdentifier,
+        //     ( ulCurrentTime - ulMqttProcessLoopTimeoutTime ),
+        //     MQTT_Status_strerror( eMqttStatus )
+        // );
+
     }
     else
     {
@@ -996,7 +997,6 @@ static MQTTStatus_t processLoopWithTimeout( MQTTContext_t * pMqttContext,
            ( eMqttStatus == MQTTSuccess || eMqttStatus == MQTTNeedMoreBytes ) )
     {
         
-        // printf("MQTT_ProcessLoop\r\n");
         if(send_mqtt_message){
             for(int i = 0 ; i < mqtt_response_counter ; i++){
                 publishToTopic(pMqttContext , MQTT_RESPONSE_TOPIC , mqtt_response_list[i]);
@@ -1048,18 +1048,17 @@ int handleResubscribe( MQTTContext_t * pMqttContext )
 
         if( mqttStatus != MQTTSuccess )
         {
-#ifdef DB_AWS_IOT              
-            LogError( ( "Failed to send RESUBSCRIBE packet to broker with error = %s.",
-                        MQTT_Status_strerror( mqttStatus ) ) );
-#endif
+            CY_AWS_LOGE("Failed to send RESUBSCRIBE packet to broker with error = %s.",
+                        MQTT_Status_strerror( mqttStatus ) );
+
             returnStatus = EXIT_FAILURE;
             break;
         }
-#ifdef DB_AWS_IOT  
-        LogInfo( ( "RESUBSCRIBE sent for topic %.*s to broker.\n\n",
+
+        CY_AWS_LOGI("RESUBSCRIBE sent for topic %.*s to broker.\n\n",
                    MQTT_COMMAND_TOPIC_LENGTH,
-                   MQTT_COMMAND_TOPIC ) );
-#endif
+                   MQTT_COMMAND_TOPIC );
+
         /* Process incoming packet. */
         returnStatus = waitForPacketAck( pMqttContext,
                                          globalSubscribePacketIdentifier,
@@ -1081,18 +1080,15 @@ int handleResubscribe( MQTTContext_t * pMqttContext )
 
             if( backoffAlgStatus == BackoffAlgorithmRetriesExhausted )
             {
-#ifdef DB_AWS_IOT                  
-                LogError( ( "Subscription to topic failed, all attempts exhausted." ) );
-#endif
+                CY_AWS_LOGE("Subscription to topic failed, all attempts exhausted.");
                 returnStatus = EXIT_FAILURE;
             }
             else if( backoffAlgStatus == BackoffAlgorithmSuccess )
-            {
-#ifdef DB_AWS_IOT                  
-                LogWarn( ( "Server rejected subscription request. Retrying "
+            { 
+                CY_AWS_LOGW("Server rejected subscription request. Retrying "
                            "connection after %hu ms backoff.",
-                           ( unsigned short ) nextRetryBackOff ) );
-#endif
+                           ( unsigned short ) nextRetryBackOff );
+
                 Clock_SleepMs( nextRetryBackOff );
             }
         }
@@ -1150,12 +1146,10 @@ void aws_iot_task(void *pvParameters){
                 {
                     /* Log error to indicate connection failure after all
                     * reconnect attempts are over. */
-#ifdef DB_AWS_IOT                     
-                    LogError( ( "Failed to connect to MQTT broker %.*s.",
+                    CY_AWS_LOGE("Failed to connect to MQTT broker %.*s.",
                                 AWS_IOT_ENDPOINT_LENGTH,
-                                AWS_IOT_ENDPOINT ) );
-#endif
-                    sleep( MQTT_SUBPUB_LOOP_DELAY_SECONDS );            
+                                AWS_IOT_ENDPOINT);
+                    sleep( MQTT_SUBPUB_LOOP_DELAY_SECONDS );
                 }
                 else
                 {
@@ -1163,19 +1157,16 @@ void aws_iot_task(void *pvParameters){
                     clientSessionPresent = true;
                     if( brokerSessionPresent == true )
                     {
-#ifdef DB_AWS_IOT                          
-                        LogInfo( ( "An MQTT session with broker is re-established. "
-                                "Resending unacked publishes." ) );
-#endif
+                         
+                        // LogInfo("An MQTT session with broker is re-established. "
+                        //         "Resending unacked publishes." );
                         /* Handle all the resend of publish messages. */
                         returnStatus = handlePublishResend( &mqttContext );
                     }
                     else
                     {
-#ifdef DB_AWS_IOT                          
-                        LogInfo( ( "A clean MQTT connection is established."
-                                " Cleaning up all the stored outgoing publishes.\n\n" ) );
-#endif
+                        // LogInfo("A clean MQTT connection is established."
+                        //         " Cleaning up all the stored outgoing publishes.\n\n" );
                         /* Clean up the outgoing publishes waiting for ack as this new
                         * connection doesn't re-establish an existing session. */
                         cleanupOutgoingPublishes();
@@ -1188,12 +1179,11 @@ void aws_iot_task(void *pvParameters){
             }
 
             if( returnStatus == EXIT_SUCCESS ){
-#ifdef DB_AWS_IOT                  
-                LogInfo( ( "Subscribing to the MQTT topic %.*s.",
-                        MQTT_COMMAND_TOPIC_LENGTH,
-                        MQTT_COMMAND_TOPIC ) );
-#endif
-                returnStatus = subscribeToTopic( &mqttContext );
+
+                // CY_AWS_LOGI( "Subscribing to the MQTT topics %.*s.",
+                //         MQTT_COMMAND_TOPIC_LENGTH,
+                //         MQTT_COMMAND_TOPIC );
+                returnStatus = subscribeToTopics( &mqttContext );
             }
 
             if( returnStatus == EXIT_SUCCESS ){
@@ -1204,11 +1194,10 @@ void aws_iot_task(void *pvParameters){
 
             if( ( returnStatus == EXIT_SUCCESS ) && ( globalSubAckStatus == MQTTSubAckFailure ) )
             {
-#ifdef DB_AWS_IOT                  
-                LogInfo( ( "Server rejected initial subscription request. Attempting to re-subscribe to topic %.*s.",
-                        MQTT_COMMAND_TOPIC_LENGTH,
-                        MQTT_COMMAND_TOPIC ) );
-#endif                        
+              
+                // CY_AWS_LOGI("Server rejected initial subscription request. Attempting to re-subscribe to topic %.*s.",
+                //         MQTT_COMMAND_TOPIC_LENGTH,
+                //         MQTT_COMMAND_TOPIC );
                 returnStatus = handleResubscribe( &mqttContext );
             }
 

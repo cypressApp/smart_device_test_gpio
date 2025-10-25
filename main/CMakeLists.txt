@@ -13,6 +13,7 @@ set(COMPONENT_SRCS
 	"ota_lib/tcp_ota_handler.c"
 	"ota_lib/ota_handler.c"
 	"ota_lib/flash_boot_handler.c"
+	"ota_lib/http_ota_handler.c"
 	"checksum_handler.c"
 	"memory_handler/flash_wifi_info_handler.c"
 	"memory_handler/flash_reset_handler.c"

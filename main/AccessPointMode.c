@@ -2,6 +2,9 @@
 
 #define ESP_AP_MAX_STA_CONN   10
 
+
+esp_netif_t *p_netif_ap;
+
 void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
     // if (event_id == WIFI_EVENT_AP_STACONNECTED) {
@@ -18,7 +21,7 @@ void wifi_init_accesspoint_mode()
     
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    p_netif = esp_netif_create_default_wifi_ap();
+    p_netif_ap = esp_netif_create_default_wifi_ap();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -49,7 +52,7 @@ void wifi_init_accesspoint_mode()
 
 void update_wifi_ip_ap(){
 
-    int tempIpSlice = get_device_ip_info_int();
+    int tempIpSlice = get_device_ip_info_int(p_netif_ap);
     update_wifi_mode_ip(tempIpSlice);
 
     ip4_len = 0;

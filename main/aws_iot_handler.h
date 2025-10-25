@@ -67,8 +67,14 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
 #define MQTT_COMMAND_TOPIC                  TERMINAL_NAME "/" DEVICE_TYPE "/" MAJOR_ID MINOR_ID "/command"  
 #define MQTT_COMMAND_TOPIC_LENGTH           ( ( uint16_t ) ( sizeof( MQTT_COMMAND_TOPIC ) - 1 ) )
 
+#define MQTT_GET_INFO_COMMAND_TOPIC         TERMINAL_NAME "/" DEVICE_TYPE "/" MAJOR_ID MINOR_ID "/getInfoCommand"  
+#define MQTT_GET_INFO_COMMAND_TOPIC_LENGTH  ( ( uint16_t ) ( sizeof( MQTT_GET_INFO_COMMAND_TOPIC ) - 1 ) )
+
 #define MQTT_RESPONSE_TOPIC                  TERMINAL_NAME "/" DEVICE_TYPE "/" MAJOR_ID MINOR_ID "/response"  
 #define MQTT_RESPONSE_TOPIC_LENGTH           ( ( uint16_t ) ( sizeof( MQTT_RESPONSE_TOPIC ) - 1 ) )
+
+#define MQTT_GET_INFO_RESPONSE_TOPIC         TERMINAL_NAME "/" DEVICE_TYPE "/" MAJOR_ID MINOR_ID "/getInfoResponse"  
+#define MQTT_GET_INFO_RESPONSE_TOPIC_LENGTH ( ( uint16_t ) ( sizeof( MQTT_GET_INFO_RESPONSE_TOPIC ) - 1 ) )
 
 #define MAX_OUTGOING_PUBLISHES              ( 5U )
 #define MQTT_PACKET_ID_INVALID              ( ( uint16_t ) 0U )

@@ -4,7 +4,7 @@
 
 #define START_PAIRING "StartP"
 #define FINISH_PAIRING "FinishP"
-#define PAIR_ACK_RESPONSE "pAck"
+#define PAIR_ACK_RESPONSE "ACK"
 
 #define START_PAIRING_IND   0
 #define SET_ROUTER_SSID_IND 1

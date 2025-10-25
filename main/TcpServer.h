@@ -1,6 +1,6 @@
 #include "stdbool.h"
 
-#undef  TCP_SERVER_DB
+#define  TCP_SERVER_DB
 
 #undef  CONSTANT_TCP_RECEIVE_LEN 
 #define TCP_RECEIVE_DATA_LENGTH        10240 //49152 
