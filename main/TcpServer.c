@@ -8,6 +8,13 @@ int  tcp_rec_data_counter = 0;
 bool is_tcp_timeout = false;
 bool valid_data_received = false;
 
+UpdateFirmwareStepInfo updateFirmwareSteps[] = {
+    { UPDATE_FW_START,      0, "startupdatecomm", "startupdateres" },
+    { UPDATE_FW_CREDENTIAL, 1, "credentialcomm",  "credentialres"  },
+    { UPDATE_FW_UPDATING,   2, "updatingcomm",    "updating:"      },
+    { UPDATE_FW_UPDATED,    3, "updatedcomm",     "updatedres"     }
+};
+
 void process_tcp_data(char* rx_buffer , int rx_buffer_len , int sock){
 
 #ifdef TCP_SERVER_DB    
@@ -18,14 +25,26 @@ void process_tcp_data(char* rx_buffer , int rx_buffer_len , int sock){
     //     xTaskCreate(&ota_task, "ota_task", 8192, NULL, 5, NULL);
     //     return;
     // }
-    if(memcmp(rx_buffer , "https" , 5) == 0){
-        memcpy(firmwareUrl , rx_buffer , rx_buffer_len);
-        firmwareUrl[rx_buffer_len] = 0;
-        xTaskCreate(&ota_task, "ota_task", 8192, NULL, 5, NULL);
-        send_data_len = sprintf(send_data , "%s\n" , PAIR_ACK_RESPONSE);
+    if(memcmp(rx_buffer , updateFirmwareSteps[UPDATE_FW_START].command , 15) == 0){
+        send_data_len = sprintf(send_data , "%s\n" , updateFirmwareSteps[UPDATE_FW_START].response);
         vTaskDelay(100 / portTICK_PERIOD_MS);
         send(sock, send_data, send_data_len, 0);
-        return;
+        return;        
+    }
+    else if(memcmp(rx_buffer , updateFirmwareSteps[UPDATE_FW_CREDENTIAL].command , 14) == 0){
+        send_data_len = sprintf(send_data , "%s\n" , updateFirmwareSteps[UPDATE_FW_CREDENTIAL].response);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        send(sock, send_data, send_data_len, 0);
+        return;        
+    }
+    else if(memcmp(rx_buffer , updateFirmwareSteps[UPDATE_FW_UPDATING].command , 12) == 0){
+        memcpy(firmwareUrl , rx_buffer + 12 , rx_buffer_len - 12);
+        firmwareUrl[rx_buffer_len - 12] = 0;
+        xTaskCreate(&ota_task, "ota_task", 8192, &sock, 5, NULL);
+        send_data_len = sprintf(send_data , "%s2\n" , updateFirmwareSteps[UPDATE_FW_UPDATING].response);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        send(sock, send_data, send_data_len, 0);
+        return;        
     }
     else if(memcmp(rx_buffer , START_PAIRING , strlen(START_PAIRING)) == 0){
 		if(pairing_step == START_PAIRING_IND){

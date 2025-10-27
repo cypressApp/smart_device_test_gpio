@@ -10,7 +10,8 @@
     "stdbool.h": "c",
     "time.h": "c",
     "demo_config.h": "c",
-    "network_transport.h": "c"
+    "network_transport.h": "c",
+    "http_ota_handler.h": "c"
   },
   "idf.adapterTargetName": "esp32",
   "idf.flashType": "UART",

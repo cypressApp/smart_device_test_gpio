@@ -277,8 +277,6 @@ void wifi_init_sta()
         // tcpip_adapter_dns_info_t dns_info;
         // tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_STA, TCPIP_ADAPTER_DNS_MAIN, &dns_info);
         // printf("DNS: %s\n", ip4addr_ntoa(&dns_info.ip.u_addr.ip4));
-        // Start OTA task
-        // xTaskCreate(&ota_task, "ota_task", 8192, NULL, 5, NULL);
 
         xTaskCreate(aws_iot_task, "aws_iot_task", AWS_IOT_TASK_STACK_DEPTH, NULL, 5, NULL);
 #endif        	

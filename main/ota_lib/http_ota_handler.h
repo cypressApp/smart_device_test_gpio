@@ -6,6 +6,8 @@
 #include "esp_https_ota.h"
 #include "constants.h"
 #include "esp_log.h"
+#include "../UdpServer.h"
+#include "../TcpServer.h"
 
 extern char firmwareUrl[4096];
 

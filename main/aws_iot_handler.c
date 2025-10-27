@@ -13,18 +13,30 @@ typedef struct PublishPackets
     MQTTPublishInfo_t pubInfo;
 } PublishPackets_t;
 
+const char *subscribeTopics[] = {
+    MQTT_COMMAND_TOPIC,
+    MQTT_GET_INFO_COMMAND_TOPIC,
+    MQTT_UPDATE_FW_COMMAND_TOPIC
+};
+
+const uint16_t subscribeTopicLengths[] = {
+    MQTT_COMMAND_TOPIC_LENGTH,
+    MQTT_GET_INFO_COMMAND_TOPIC_LENGTH,
+    MQTT_UPDATE_FW_COMMAND_TOPIC_LENGTH
+};
+
 uint16_t globalAckPacketIdentifier = 0U;
 uint16_t globalSubscribePacketIdentifier = 0U;
 uint16_t globalUnsubscribePacketIdentifier = 0U;
 PublishPackets_t outgoingPublishPackets[ MAX_OUTGOING_PUBLISHES ] = { 0 };
-MQTTSubscribeInfo_t pGlobalSubscriptionList[ 1 ];
+MQTTSubscribeInfo_t pGlobalSubscriptionList[ SUBSCRIBE_TOPICS_SIZE ];
 uint8_t buffer[ NETWORK_BUFFER_SIZE ];
 MQTTSubAckStatus_t globalSubAckStatus = MQTTSubAckFailure;
 MQTTPubAckInfo_t pOutgoingPublishRecords[ OUTGOING_PUBLISH_RECORD_LEN ];
 MQTTPubAckInfo_t pIncomingPublishRecords[ INCOMING_PUBLISH_RECORD_LEN ];
 StaticSemaphore_t xTlsContextSemaphoreBuffer;
 
-char aws_iot_command_buffer[1024][32];
+char aws_iot_command_buffer[8][4096];
 int new_aws_iot_command_buffer_counter = 0;
 int last_aws_iot_command_buffer_counter = 0;
 char is_aws_iot_command_buffer_handler_idle = true;
@@ -59,7 +71,7 @@ void process_aws_iot_get_info_command( MQTTContext_t * pMqttContext, const char 
 
     memcpy( aws_iot_command_buffer[new_aws_iot_command_buffer_counter] , command , sizeof(aws_iot_command_buffer[new_aws_iot_command_buffer_counter]));
     new_aws_iot_command_buffer_counter++;
-    if(new_aws_iot_command_buffer_counter >= 1024){
+    if(new_aws_iot_command_buffer_counter >= 64){
         new_aws_iot_command_buffer_counter = 0;
     }
 
@@ -75,11 +87,45 @@ void process_aws_iot_get_info_command( MQTTContext_t * pMqttContext, const char 
 
 }
 
+void process_aws_iot_update_fw_response( MQTTContext_t * pMqttContext, const char *command , int command_length){
+
+    memcpy( aws_iot_command_buffer[new_aws_iot_command_buffer_counter] , command , sizeof(aws_iot_command_buffer[new_aws_iot_command_buffer_counter]));
+    new_aws_iot_command_buffer_counter++;
+    size_t row = sizeof(aws_iot_command_buffer) / sizeof(aws_iot_command_buffer[0]);
+    if(new_aws_iot_command_buffer_counter >= row){
+        new_aws_iot_command_buffer_counter = 0;
+    }
+
+    char *temp_response = (char *) calloc(256 , sizeof(char)); 
+
+    if(!memcmp(command , updateFirmwareSteps[UPDATE_FW_START].command , 15)){
+        sprintf(temp_response, "%s", updateFirmwareSteps[UPDATE_FW_START].response);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        publishToTopic(pMqttContext , MQTT_UPDATE_FW_RESPONSE_TOPIC , temp_response);
+    }
+    else if(memcmp(command , updateFirmwareSteps[UPDATE_FW_CREDENTIAL].command , 14) == 0){
+        sprintf(temp_response , "%s" , updateFirmwareSteps[UPDATE_FW_CREDENTIAL].response);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        publishToTopic(pMqttContext , MQTT_UPDATE_FW_RESPONSE_TOPIC , temp_response);
+    }
+    else if(memcmp(command , updateFirmwareSteps[UPDATE_FW_UPDATING].command , 12) == 0){
+        memcpy(firmwareUrl , command + 12 , command_length - 12);
+        firmwareUrl[command_length - 12] = 0;
+        // xTaskCreate(&ota_task, "ota_task", 8192, NULL, 5, NULL);
+        sprintf(temp_response , "%s2\n" , updateFirmwareSteps[UPDATE_FW_UPDATING].response);
+        publishToTopic(pMqttContext , MQTT_UPDATE_FW_RESPONSE_TOPIC , temp_response);
+    }
+
+    free(temp_response);
+
+}
+
 void process_aws_iot_command( MQTTContext_t * pMqttContext, const char *command , int command_length){
 
     memcpy( aws_iot_command_buffer[new_aws_iot_command_buffer_counter] , command , sizeof(aws_iot_command_buffer[new_aws_iot_command_buffer_counter]));
     new_aws_iot_command_buffer_counter++;
-    if(new_aws_iot_command_buffer_counter >= 1024){
+    size_t row = sizeof(aws_iot_command_buffer) / sizeof(aws_iot_command_buffer[0]);
+    if(new_aws_iot_command_buffer_counter >= row){
         new_aws_iot_command_buffer_counter = 0;
     }
 
@@ -473,6 +519,15 @@ static void handleIncomingPublish( MQTTContext_t * pMqttContext,
             ( const char * ) pPublishInfo->pPayload , 
             ( int ) pPublishInfo->payloadLength);
     }
+    else if( ( pPublishInfo->topicNameLength == MQTT_UPDATE_FW_COMMAND_TOPIC_LENGTH ) &&
+        ( 0 == strncmp( MQTT_UPDATE_FW_COMMAND_TOPIC,
+                        pPublishInfo->pTopicName,
+                        pPublishInfo->topicNameLength ) ) )
+    {
+        process_aws_iot_update_fw_response(pMqttContext , 
+            ( const char * ) pPublishInfo->pPayload , 
+            ( int ) pPublishInfo->payloadLength);
+    }
     else
     {
         isTopicMatched = false;
@@ -711,17 +766,7 @@ static int disconnectMqttSession( MQTTContext_t * pMqttContext )
     return returnStatus;
 }
 
-int SUBSCRIBE_TOPICS_SIZE = 2;
 
-const char *subscribeTopics[] = {
-    MQTT_COMMAND_TOPIC,
-    MQTT_GET_INFO_COMMAND_TOPIC
-};
-
-const uint16_t subscribeTopicLengths[] = {
-    MQTT_COMMAND_TOPIC_LENGTH,
-    MQTT_GET_INFO_COMMAND_TOPIC_LENGTH
-};
 
 /*-----------------------------------------------------------*/
 
@@ -1100,8 +1145,8 @@ int handleResubscribe( MQTTContext_t * pMqttContext )
 void aws_iot_task(void *pvParameters){
     
     for( ; ; ){
-        if(!isConnectedToWifi){
 
+        if(!isConnectedToWifi){
             printf("Wifi is not connected!\r\n");
             sleep( 2 );   
             continue;

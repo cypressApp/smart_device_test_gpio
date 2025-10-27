@@ -13,6 +13,8 @@
 
 #undef DB_AWS_IOT
 
+#define SUBSCRIBE_TOPICS_SIZE 3
+
 #ifdef CONFIG_EXAMPLE_USE_ESP_SECURE_CERT_MGR
     #include "esp_secure_cert_read.h"    
 #endif
@@ -70,11 +72,20 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
 #define MQTT_GET_INFO_COMMAND_TOPIC         TERMINAL_NAME "/" DEVICE_TYPE "/" MAJOR_ID MINOR_ID "/getInfoCommand"  
 #define MQTT_GET_INFO_COMMAND_TOPIC_LENGTH  ( ( uint16_t ) ( sizeof( MQTT_GET_INFO_COMMAND_TOPIC ) - 1 ) )
 
+#define MQTT_GET_INFO_COMMAND_TOPIC         TERMINAL_NAME "/" DEVICE_TYPE "/" MAJOR_ID MINOR_ID "/getInfoCommand"  
+#define MQTT_GET_INFO_COMMAND_TOPIC_LENGTH  ( ( uint16_t ) ( sizeof( MQTT_GET_INFO_COMMAND_TOPIC ) - 1 ) )
+
+#define MQTT_UPDATE_FW_COMMAND_TOPIC         TERMINAL_NAME "/" DEVICE_TYPE "/" MAJOR_ID MINOR_ID "/updateFwCommand"  
+#define MQTT_UPDATE_FW_COMMAND_TOPIC_LENGTH  ( ( uint16_t ) ( sizeof( MQTT_UPDATE_FW_COMMAND_TOPIC ) - 1 ) )
+
 #define MQTT_RESPONSE_TOPIC                  TERMINAL_NAME "/" DEVICE_TYPE "/" MAJOR_ID MINOR_ID "/response"  
 #define MQTT_RESPONSE_TOPIC_LENGTH           ( ( uint16_t ) ( sizeof( MQTT_RESPONSE_TOPIC ) - 1 ) )
 
 #define MQTT_GET_INFO_RESPONSE_TOPIC         TERMINAL_NAME "/" DEVICE_TYPE "/" MAJOR_ID MINOR_ID "/getInfoResponse"  
 #define MQTT_GET_INFO_RESPONSE_TOPIC_LENGTH ( ( uint16_t ) ( sizeof( MQTT_GET_INFO_RESPONSE_TOPIC ) - 1 ) )
+
+#define MQTT_UPDATE_FW_RESPONSE_TOPIC         TERMINAL_NAME "/" DEVICE_TYPE "/" MAJOR_ID MINOR_ID "/updateFwResponse"  
+#define MQTT_UPDATE_FW_RESPONSE_TOPIC_LENGTH  ( ( uint16_t ) ( sizeof( MQTT_UPDATE_FW_RESPONSE_TOPIC ) - 1 ) )
 
 #define MAX_OUTGOING_PUBLISHES              ( 5U )
 #define MQTT_PACKET_ID_INVALID              ( ( uint16_t ) 0U )
@@ -104,7 +115,7 @@ extern const char root_cert_auth_end[]   asm("_binary_root_cert_auth_crt_end");
 extern uint16_t globalAckPacketIdentifier;
 extern uint16_t globalSubscribePacketIdentifier;
 extern uint16_t globalUnsubscribePacketIdentifier;
-extern MQTTSubscribeInfo_t pGlobalSubscriptionList[ 1 ];
+extern MQTTSubscribeInfo_t pGlobalSubscriptionList[ SUBSCRIBE_TOPICS_SIZE ];
 extern uint8_t buffer[ NETWORK_BUFFER_SIZE ];
 extern MQTTSubAckStatus_t globalSubAckStatus;
 extern MQTTPubAckInfo_t pOutgoingPublishRecords[ OUTGOING_PUBLISH_RECORD_LEN ];

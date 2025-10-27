@@ -11,12 +11,36 @@
 #define TCP_RECEIVE_DATA_SUFFIX_LENGTH  1
 #define SEND_TO_ALL                    -2
 
+
+
 extern int  tcp_rec_data_counter;
 extern int  temp_sock;
 extern int  tcp_timeout_counter;
 extern int  tcp_rec_data_counter;
 extern bool is_tcp_timeout;
 extern bool valid_data_received;
+
+#ifndef UPDATE_FIRMWARE_H
+#define UPDATE_FIRMWARE_H
+
+typedef enum {
+    UPDATE_FW_START,
+    UPDATE_FW_CREDENTIAL,
+    UPDATE_FW_UPDATING,
+    UPDATE_FW_UPDATED
+} UpdateFirmwareStep;
+
+typedef struct {
+    UpdateFirmwareStep step;
+    int code;
+    const char *command;
+    const char *response;
+} UpdateFirmwareStepInfo;
+
+/* Extern declaration (no memory allocated here) */
+extern UpdateFirmwareStepInfo updateFirmwareSteps[];
+
+#endif
 
 void execute_tcp_send(char *data);
 void process_tcp_data(char* rx_buffer , int rx_buffer_len , int sock);

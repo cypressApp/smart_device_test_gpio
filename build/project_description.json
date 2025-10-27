@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "tls_mutual_auth",
-    "project_version":    "61f7956-dirty",
+    "project_version":    "ded9c90-dirty",
     "project_path":       "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio",
     "idf_path":           "C:/Users/Majid/esp/v5.4.2/esp-idf",
     "build_dir":          "C:/Users/Majid/Desktop/Cypress/firmware/smart_device_test_gpio/build",
